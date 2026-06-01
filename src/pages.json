@@ -1,0 +1,16 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "EnglishJoy"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "@navigationBarTextStyle",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "@navigationBarBackgroundColor",
+		"backgroundColor": "@backgroundColor"
+	}
+}

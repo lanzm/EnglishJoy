@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
 import commonUtil from "@/utils/commonUtil";
-import Loading from "@/components/loading";
 import { wordBooksData } from "@/utils/wordbooks";
 
 const isDark = ref<'dark' | 'light'>('light')
@@ -17,8 +16,6 @@ const playFlag = ref(false);
 const ttsDisabled = ref(false);
 const loading = ref(false);
 const showDrawer = ref(false);
-const isFirstLoad = ref(true);
-const isSplashFading = ref(false);
 type DetailSectionKey = 'definitions' | 'examples' | 'anatomy';
 
 const createDefaultDetailSections = () => ({
@@ -78,10 +75,6 @@ const i18n = computed(() => {
         // Drawer word list management
         backToSettings: isZh ? '返回设置' : 'Back to Settings',
         emptyListPrompt: isZh ? '生词本空空如也，快去添加吧' : 'Word list is empty. Go add some!',
-        
-        // Splash Screen
-        splashSubtitle: isZh ? '开启你的沉浸式英语记忆之旅' : 'Begin your immersive English learning journey',
-        splashLoading: isZh ? '正在为您准备词书资源...' : 'Preparing wordbook resources...',
         
         // Alerts & Messages
         firstWordAlert: isZh ? '已经是第一词了' : 'Already at the first word',
@@ -144,8 +137,10 @@ const gearX = ref(300);
 const gearY = ref(350);
 const lastDragX = ref(300);
 const lastDragY = ref(350);
+const gearReady = ref(false);
 const isHiding = ref(true); // Default to folded/docked state on load
 const dockSide = ref<'left' | 'right'>('right');
+let gearIntroTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Touch drag card state
 const startX = ref(0);
@@ -390,26 +385,18 @@ const loadWordBook = () => {
     historyIndex.value = -1;
     preloadedNextWord.value = null;
 
-    const data = wordBooksData[wordBook.value.value];
-    if (data && data.length > 0) {
-        wordList.value = data;
-        randomWord();
-        updatePreloadedNextWord();
-        syncBgCard();
-    } else {
-        commonUtil.msg(i18n.value.loadFailAlert, "error");
-    }
-
-    // Smoothly fade out the splash screen after the synchronous loading finishes
-    if (isFirstLoad.value) {
-        isSplashFading.value = true;
-        setTimeout(() => {
-            isFirstLoad.value = false;
-            isSplashFading.value = false;
-        }, 400);
-    }
-
-    loading.value = false;
+    setTimeout(() => {
+        const data = wordBooksData[wordBook.value.value];
+        if (data && data.length > 0) {
+            wordList.value = data;
+            randomWord();
+            updatePreloadedNextWord();
+            syncBgCard();
+        } else {
+            commonUtil.msg(i18n.value.loadFailAlert, "error");
+        }
+        loading.value = false;
+    }, 150);
 };
 
 // Raw, non-animated word loading (used on initialization)
@@ -787,6 +774,10 @@ const onGearChange = (e: any) => {
 };
 
 const onGearTouchStart = () => {
+    if (gearIntroTimer) {
+        clearTimeout(gearIntroTimer);
+        gearIntroTimer = null;
+    }
     isHiding.value = false;
 };
 
@@ -815,25 +806,50 @@ const onGearTouchEnd = () => {
 };
 
 const initGearPosition = () => {
+    gearReady.value = false;
+    if (gearIntroTimer) {
+        clearTimeout(gearIntroTimer);
+        gearIntroTimer = null;
+    }
     try {
         const sys = uni.getSystemInfoSync();
         const screenWidth = sys.windowWidth;
         const gearWidth = 50;
-        // Snapped to right edge on initial load (half-hidden)
+        const visibleRightGap = 16;
+        const visibleX = Math.max(screenWidth - gearWidth - visibleRightGap, 0);
+        const dockedX = screenWidth - gearWidth;
+
+        // Start fully visible so first-time users notice the settings entry, then dock it.
         dockSide.value = 'right';
-        gearX.value = screenWidth - gearWidth;
+        gearX.value = visibleX;
         gearY.value = sys.windowHeight * 0.4;
-        lastDragX.value = screenWidth - gearWidth;
+        lastDragX.value = visibleX;
         lastDragY.value = sys.windowHeight * 0.4;
-        isHiding.value = true;
+        isHiding.value = false;
+
+        gearIntroTimer = setTimeout(() => {
+            if (!showDrawer.value) {
+                gearX.value = dockedX;
+                lastDragX.value = dockedX;
+                isHiding.value = true;
+            }
+            gearIntroTimer = null;
+        }, 1400);
     } catch (e) {
         gearX.value = 350;
         gearY.value = 300;
-        isHiding.value = true;
+        isHiding.value = false;
     }
+    nextTick(() => {
+        gearReady.value = true;
+    });
 };
 
 const handleGearClick = () => {
+    if (gearIntroTimer) {
+        clearTimeout(gearIntroTimer);
+        gearIntroTimer = null;
+    }
     console.log('handleGearClick called: opening drawer settings.');
     isHiding.value = false;
     showDrawer.value = true;
@@ -918,6 +934,7 @@ onMounted(() => {
   <movable-area class="page-container" :class="[isDark]">
       <!-- Background Card (visible underneath when current card slides up) -->
       <view 
+        v-if="bgWordObj && !loading"
         class="app-card-bg" 
         :class="[bgCardTransitionClass]"
         :style="bgCardStyle"
@@ -1002,9 +1019,30 @@ onMounted(() => {
         :class="[cardTransitionClass]"
         :style="cardStyle"
       >
+          <view v-if="loading || !wordObj" class="card-skeleton-state">
+              <view class="skeleton-top">
+                  <view class="skeleton-line skeleton-word"></view>
+                  <view class="skeleton-line skeleton-phonetic"></view>
+                  <view class="skeleton-pill"></view>
+              </view>
+
+              <view class="card-divider shrink-0"></view>
+
+              <view class="skeleton-body">
+                  <view class="skeleton-circle"></view>
+                  <view class="skeleton-line skeleton-prompt-wide"></view>
+                  <view class="skeleton-line skeleton-prompt-short"></view>
+              </view>
+
+              <view class="skeleton-footer">
+                  <view class="skeleton-button skeleton-button-secondary"></view>
+                  <view class="skeleton-button skeleton-button-primary"></view>
+              </view>
+          </view>
+
           <!-- Word & Audio Section (Fixed) -->
           <view 
-            v-if="wordObj && !loading" 
+            v-else
             class="word-card-top shrink-0"
             @touchstart="onCardTouchStart"
             @touchmove="onCardTouchMove"
@@ -1034,7 +1072,7 @@ onMounted(() => {
           </view>
 
           <!-- Divider -->
-          <view class="card-divider shrink-0"></view>
+          <view v-if="wordObj && !loading" class="card-divider shrink-0"></view>
 
           <!-- Scrollable details container (Flex-1) - Shown when definitions are revealed -->
           <view
@@ -1133,8 +1171,8 @@ onMounted(() => {
           </view>
 
           <!-- If definitions are not shown, show a clean, centered quiz card face (Tapping reveals translation) -->
-          <view 
-            v-show="!knowFlag && wordObj && !loading" 
+          <view
+            v-if="!knowFlag && wordObj && !loading"
             class="card-empty-state flex-1 flex-col-center" 
             @click="handleCardTap"
             @touchstart="onCardTouchStart"
@@ -1147,13 +1185,9 @@ onMounted(() => {
               <text class="empty-state-text">{{ i18n.quizPrompt }}</text>
           </view>
 
-          <!-- Loading state inside the card -->
-          <view v-if="loading || !wordObj" class="card-empty-state flex-1 flex-col-center">
-              <Loading />
-          </view>
-
           <!-- Footer Buttons (Fixed inside the bottom of the card) -->
           <view 
+            v-if="wordObj && !loading"
             class="card-footer shrink-0"
             @touchstart="onCardTouchStart"
             @touchmove="onCardTouchMove"
@@ -1183,7 +1217,8 @@ onMounted(() => {
       </view>
 
       <!-- Draggable floating gear settings button that snaps to edge and auto-hides -->
-      <movable-view 
+      <movable-view
+          v-if="gearReady"
           class="floating-gear" 
           direction="all" 
           :x="gearX" 
@@ -1377,26 +1412,6 @@ onMounted(() => {
           </view>
       </view>
 
-      <!-- Fullscreen Premium Splash/Loading Screen -->
-      <view 
-        v-if="isFirstLoad" 
-        class="splash-screen" 
-        :class="[isDark, { 'fade-out': isSplashFading }]"
-      >
-          <view class="splash-content flex-col-center">
-              <view class="splash-logo-circle">
-                  <text class="splash-logo-text">EJ</text>
-              </view>
-              <text class="splash-title">EnglishJoy</text>
-              <text class="splash-subtitle">{{ i18n.splashSubtitle }}</text>
-              
-              <view class="splash-loader-box">
-                  <Loading />
-              </view>
-              
-              <text class="splash-loading-text">{{ i18n.splashLoading }}</text>
-          </view>
-      </view>
   </movable-area>
 </template>
 
@@ -2166,6 +2181,115 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     color: #A1A1AA;
 }
 
+/* Skeleton Loader Styles */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.card-skeleton-state {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
+}
+
+.skeleton-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-top: 10px;
+}
+
+.skeleton-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 30px 0;
+}
+
+.skeleton-footer {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-top: auto;
+    padding-bottom: 5px;
+}
+
+.skeleton-line, .skeleton-pill, .skeleton-circle, .skeleton-button {
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+.light .skeleton-line, .light .skeleton-pill, .light .skeleton-circle, .light .skeleton-button {
+    background-image: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 37%, #F1F5F9 63%);
+}
+
+.dark .skeleton-line, .dark .skeleton-pill, .dark .skeleton-circle, .dark .skeleton-button {
+    background-image: linear-gradient(90deg, #27272A 25%, #3F3F46 37%, #27272A 63%);
+}
+
+.skeleton-word {
+    width: 160px;
+    height: 36px;
+    border-radius: 6px;
+}
+
+.skeleton-phonetic {
+    width: 100px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+.skeleton-pill {
+    width: 64px;
+    height: 22px;
+    border-radius: 11px;
+}
+
+.skeleton-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+}
+
+.skeleton-prompt-wide {
+    width: 200px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.skeleton-prompt-short {
+    width: 140px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.skeleton-button {
+    height: 48px;
+    border-radius: 10px;
+}
+
+.skeleton-button-secondary {
+    flex: 3;
+}
+
+.skeleton-button-primary {
+    flex: 7;
+}
+
 /* Empty State / Prompt */
 .card-empty-state {
     display: flex;
@@ -2223,6 +2347,16 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     gap: 12px;
 }
 
+.card-split-buttons .btn-secondary {
+    flex: 3 1 0;
+    font-size: 14px;
+}
+
+.card-split-buttons .btn-primary {
+    flex: 7 1 0;
+    font-size: 16px;
+}
+
 /* Card Button Components (Using standard rounded corners, not pill) */
 .card-btn {
     display: flex;
@@ -2234,6 +2368,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-weight: bold;
     transition: all 0.1s;
     box-sizing: border-box;
+    min-width: 0;
     width: 100%;
     border: 1px solid transparent;
 }
@@ -2824,130 +2959,4 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     flex-direction: column;
 }
 
-/* Fullscreen Splash Screen */
-.splash-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
-    opacity: 1;
-    visibility: visible;
-}
-
-.splash-screen.light {
-    background: linear-gradient(135deg, #E9EEF4 0%, #DCE4EC 100%);
-}
-
-.splash-screen.dark {
-    background: linear-gradient(135deg, #09090B 0%, #121214 100%);
-}
-
-.splash-screen.fade-out {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.splash-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-}
-
-.splash-logo-circle {
-    width: 90px;
-    height: 90px;
-    border-radius: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.15);
-    margin-bottom: 20px;
-    transition: transform 0.3s;
-    animation: splash-pulse-logo 2s infinite ease-in-out;
-}
-
-.light .splash-logo-circle {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-}
-
-.dark .splash-logo-circle {
-    background: #18181B;
-    border: 1px solid #27272A;
-}
-
-.splash-logo-text {
-    font-size: 32px;
-    font-weight: 900;
-    color: #2563EB;
-    letter-spacing: -1px;
-}
-
-.dark .splash-logo-text {
-    color: #3B82F6;
-}
-
-.splash-title {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 8px;
-}
-
-.light .splash-title {
-    color: #0F172A;
-}
-
-.dark .splash-title {
-    color: #FFFFFF;
-}
-
-.splash-subtitle {
-    font-size: 13.5px;
-    font-weight: 500;
-    margin-bottom: 40px;
-}
-
-.light .splash-subtitle {
-    color: #64748B;
-}
-
-.dark .splash-subtitle {
-    color: #94A3B8;
-}
-
-.splash-loader-box {
-    margin-bottom: 16px;
-    transform: scale(1.1);
-}
-
-.splash-loading-text {
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.light .splash-loading-text {
-    color: #94A3B8;
-}
-
-.dark .splash-loading-text {
-    color: #4F4F56;
-}
-
-@keyframes splash-pulse-logo {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-}
 </style>

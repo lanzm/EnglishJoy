@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, nextTick } from 'vue'
+import { ref, onMounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
 import commonUtil from "@/utils/commonUtil";
 import Loading from "@/components/loading";
 import { wordBooksData } from "@/utils/wordbooks";
@@ -8,15 +8,27 @@ const isDark = ref<'dark' | 'light'>('light')
 const wordObj = ref<any>(null);
 const scrollTop = ref(0);
 const detailScrollTop = ref(0);
+const hasDetailOverflow = ref(false);
 const wordBook = ref<any>(null);
 const wordNum = ref(0);
 const knowFlag = ref(false); // Controls whether the translations are revealed
 const preventClick = ref(false);
 const playFlag = ref(false);
+const ttsDisabled = ref(false);
 const loading = ref(false);
 const showDrawer = ref(false);
 const isFirstLoad = ref(true);
 const isSplashFading = ref(false);
+type DetailSectionKey = 'definitions' | 'examples' | 'anatomy';
+
+const createDefaultDetailSections = () => ({
+    definitions: true,
+    examples: true,
+    anatomy: false
+});
+
+const detailSections = ref<Record<DetailSectionKey, boolean>>(createDefaultDetailSections());
+const instance = getCurrentInstance();
 
 const lang = ref<'zh' | 'en'>('zh');
 
@@ -50,6 +62,10 @@ const i18n = computed(() => {
         settingsTitle: isZh ? '设置选项' : 'Settings',
         currentBookLabel: isZh ? '当前词书' : 'Current Wordbook',
         themeLabel: isZh ? '显示模式' : 'Display Mode',
+        ttsLabel: isZh ? '发音设置' : 'Pronunciation',
+        ttsTitle: isZh ? '单词发音' : 'Word Pronunciation',
+        ttsEnabledHint: isZh ? '自动播放和点击发音' : 'Auto-play and tap pronunciation',
+        ttsDisabledHint: isZh ? '已关闭，不请求在线发音' : 'Off. No online pronunciation request',
         lightModeText: isZh ? '☀️ 明亮模式' : '☀️ Light Mode',
         darkModeText: isZh ? '🌙 暗黑模式' : '🌙 Dark Mode',
         wordListLabel: isZh ? '我的生词本' : 'My Word List',
@@ -353,6 +369,18 @@ const toggleTheme = () => {
     setTheme(isDark.value === 'dark' ? 'light' : 'dark');
 };
 
+const setTtsDisabled = (disabled: boolean) => {
+    ttsDisabled.value = disabled;
+    uni.setStorageSync('ttsDisabled', disabled);
+    if (disabled) {
+        playFlag.value = false;
+    }
+};
+
+const setTtsEnabled = (enabled: boolean) => {
+    setTtsDisabled(!enabled);
+};
+
 const loadWordBook = () => {
     loading.value = true;
     wordObj.value = null;
@@ -538,6 +566,10 @@ const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, onPlayEnd?: () 
 };
 
 const getSpeech = () => {
+    if (ttsDisabled.value) {
+        playFlag.value = false;
+        return;
+    }
     if (!wordObj.value || !wordObj.value.w) return;
     const word = wordObj.value.w;
     playFlag.value = true;
@@ -593,6 +625,32 @@ const getUniquePos = (trans: any[]) => {
 
 const getWordBookCount = (bookValue: string) => {
     return wordBooksData[bookValue]?.length || 0;
+};
+
+const updateDetailOverflow = () => {
+    nextTick(() => {
+        const query = uni.createSelectorQuery();
+        const scopedQuery = instance?.proxy ? query.in(instance.proxy as any) : query;
+
+        scopedQuery.select('.detail-scroll-view').boundingClientRect();
+        scopedQuery.select('.detail-scroll-content').boundingClientRect();
+        scopedQuery.exec((rects: any[]) => {
+            const viewportRect = rects?.[0];
+            const contentRect = rects?.[1];
+
+            if (!viewportRect || !contentRect) {
+                hasDetailOverflow.value = false;
+                return;
+            }
+
+            hasDetailOverflow.value = contentRect.height > viewportRect.height + 2;
+        });
+    });
+};
+
+const toggleDetailSection = (section: DetailSectionKey) => {
+    detailSections.value[section] = !detailSections.value[section];
+    updateDetailOverflow();
 };
 
 const getPosIcon = (pos: string) => {
@@ -705,6 +763,21 @@ const onCardTouchEnd = () => {
     }
 };
 
+const onDetailTouchStart = (e: any) => {
+    if (hasDetailOverflow.value) return;
+    onCardTouchStart(e);
+};
+
+const onDetailTouchMove = (e: any) => {
+    if (hasDetailOverflow.value) return;
+    onCardTouchMove(e);
+};
+
+const onDetailTouchEnd = () => {
+    if (hasDetailOverflow.value) return;
+    onCardTouchEnd();
+};
+
 const onGearChange = (e: any) => {
     if (e.detail.source === 'touch') {
         lastDragX.value = e.detail.x;
@@ -790,6 +863,16 @@ const resetCardScrollTop = () => {
 // Reset card scroll position to top when switching words
 watch(() => wordObj.value?.w, () => {
     resetCardScrollTop();
+    detailSections.value = createDefaultDetailSections();
+    updateDetailOverflow();
+});
+
+watch(knowFlag, (visible) => {
+    if (visible) {
+        updateDetailOverflow();
+    } else {
+        hasDetailOverflow.value = false;
+    }
 });
 
 const initData = () => {
@@ -815,6 +898,8 @@ const initData = () => {
     if (savedLang === 'zh' || savedLang === 'en') {
         lang.value = savedLang;
     }
+    const savedTtsDisabled = uni.getStorageSync('ttsDisabled');
+    ttsDisabled.value = savedTtsDisabled === true || savedTtsDisabled === 'true';
     updateNavBarColor();
     loadSavedWords();
     initGearPosition();
@@ -844,7 +929,7 @@ onMounted(() => {
                       <text class="word-large-text">{{ bgWordObj.w }}</text>
                       <view class="phonetic-row">
                           <text class="phonetic-small-text">/{{ bgWordObj.p }}/</text>
-                          <text class="phonetic-speaker-inline"></text>
+                          <text v-if="!ttsDisabled" class="phonetic-speaker-inline"></text>
                       </view>
                   </view>
               </view>
@@ -882,9 +967,9 @@ onMounted(() => {
                           >
                               <text class="item-number-prefix">{{ index + 1 }}. ({{ item[0].replace(/\.$/, '') }})</text>
                               <text class="item-definition-content">{{ item[1] }}</text>
+                              </view>
                           </view>
                       </view>
-                  </view>
               </view>
           </view>
 
@@ -927,10 +1012,10 @@ onMounted(() => {
           >
               <view class="word-flex-row">
                   <view class="word-left-col">
-                      <text class="word-large-text" @click.stop="getSpeech()">{{ wordObj.w }}</text>
-                      <view class="phonetic-row" @click.stop="getSpeech()">
+                      <text class="word-large-text" @click.stop="!ttsDisabled && getSpeech()">{{ wordObj.w }}</text>
+                      <view class="phonetic-row" @click.stop="!ttsDisabled && getSpeech()">
                           <text class="phonetic-small-text">/{{ wordObj.p }}/</text>
-                          <text class="phonetic-speaker-inline" :class="{ 'playing': playFlag }"></text>
+                          <text v-if="!ttsDisabled" class="phonetic-speaker-inline" :class="{ 'playing': playFlag }"></text>
                       </view>
                   </view>
               </view>
@@ -957,24 +1042,24 @@ onMounted(() => {
             :key="'detail-' + wordObj.w"
             class="detail-gesture-shell flex-1"
           >
-              <view
-                class="detail-side-hit-area"
-                @touchstart="onCardTouchStart"
-                @touchmove="onCardTouchMove"
-                @touchend="onCardTouchEnd"
-              ></view>
-
               <scroll-view
                 scroll-y="true"
                 :scroll-top="scrollTop"
                 class="card-scroll-view detail-scroll-view"
                 @scroll="onDetailScroll"
+                @touchstart="onDetailTouchStart"
+                @touchmove="onDetailTouchMove"
+                @touchend="onDetailTouchEnd"
               >
-                  <view class="scroll-content-container">
+                  <view class="scroll-content-container detail-scroll-content">
                       <!-- Definitions -->
-                      <view class="definitions-container">
-                          <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
-                          <view class="definition-numbered-list">
+                      <view class="detail-section definitions-container">
+                          <view class="detail-section-header" @click.stop="toggleDetailSection('definitions')">
+                              <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
+                              <text class="section-toggle-icon">{{ detailSections.definitions ? '-' : '+' }}</text>
+                          </view>
+                          <view v-if="detailSections.definitions" class="detail-section-body">
+                              <view class="definition-numbered-list">
                               <view
                                 v-for="(item, index) in wordObj?.t"
                                 :key="index"
@@ -983,13 +1068,18 @@ onMounted(() => {
                                   <text class="item-number-prefix">{{ index + 1 }}. ({{ item[0].replace(/\.$/, '') }})</text>
                                   <text class="item-definition-content">{{ item[1] }}</text>
                               </view>
+                              </view>
                           </view>
                       </view>
 
                       <!-- Examples / Translations -->
-                      <view v-if="wordObj?.s && wordObj.s.length > 0" class="examples-container">
-                          <text class="section-header-title">{{ i18n.examplesTitle }}</text>
-                          <view class="examples-vertical-list">
+                      <view v-if="wordObj?.s && wordObj.s.length > 0" class="detail-section examples-container">
+                          <view class="detail-section-header" @click.stop="toggleDetailSection('examples')">
+                              <text class="section-header-title">{{ i18n.examplesTitle }}</text>
+                              <text class="section-toggle-icon">{{ detailSections.examples ? '-' : '+' }}</text>
+                          </view>
+                          <view v-if="detailSections.examples" class="detail-section-body">
+                              <view class="examples-vertical-list">
                               <view
                                 v-for="(item, index) in wordObj.s"
                                 :key="index"
@@ -998,13 +1088,18 @@ onMounted(() => {
                                   <text class="example-en-text">{{ item[0] }}</text>
                                   <text class="example-cn-text">{{ item[1] }}</text>
                               </view>
+                              </view>
                           </view>
                       </view>
 
                       <!-- Word Anatomy Section -->
-                      <view class="anatomy-container" v-if="wordObj?.w">
-                          <text class="section-header-title">{{ i18n.wordAnatomyTitle }}</text>
-                          <view class="anatomy-grid">
+                      <view class="detail-section anatomy-container" v-if="wordObj?.w">
+                          <view class="detail-section-header" @click.stop="toggleDetailSection('anatomy')">
+                              <text class="section-header-title">{{ i18n.wordAnatomyTitle }}</text>
+                              <text class="section-toggle-icon">{{ detailSections.anatomy ? '-' : '+' }}</text>
+                          </view>
+                          <view v-if="detailSections.anatomy" class="detail-section-body">
+                              <view class="anatomy-grid">
                               <view class="anatomy-card-item">
                                   <text class="anatomy-item-label">{{ i18n.difficultyLabel }}</text>
                                   <view class="stars-row">
@@ -1030,17 +1125,11 @@ onMounted(() => {
                                   <text class="anatomy-item-label">{{ i18n.lengthLabel }}</text>
                                   <text class="anatomy-item-value">{{ i18n.wordLengthText(wordObj.w.length, wordObj.w.toLowerCase().match(/[aeiouy]/g)?.length || 0, wordObj.w.length - (wordObj.w.toLowerCase().match(/[aeiouy]/g)?.length || 0)) }}</text>
                               </view>
+                              </view>
                           </view>
                       </view>
                   </view>
               </scroll-view>
-
-              <view
-                class="detail-side-hit-area"
-                @touchstart="onCardTouchStart"
-                @touchmove="onCardTouchMove"
-                @touchend="onCardTouchEnd"
-              ></view>
           </view>
 
           <!-- If definitions are not shown, show a clean, centered quiz card face (Tapping reveals translation) -->
@@ -1197,6 +1286,22 @@ onMounted(() => {
                                       <text class="lang-text">English</text>
                                   </view>
                               </view>
+                          </view>
+                      </view>
+
+                      <!-- Option 2.6: TTS Toggle -->
+                      <view class="drawer-section">
+                          <text class="section-label">{{ i18n.ttsLabel }}</text>
+                          <view class="tts-toggle-card">
+                              <view class="tts-toggle-info">
+                                  <text class="tts-toggle-title">{{ i18n.ttsTitle }}</text>
+                                  <text class="tts-toggle-desc">{{ ttsDisabled ? i18n.ttsDisabledHint : i18n.ttsEnabledHint }}</text>
+                              </view>
+                              <switch
+                                :checked="!ttsDisabled"
+                                color="#2563EB"
+                                @change="setTtsEnabled($event.detail.value)"
+                              />
                           </view>
                       </view>
 
@@ -1727,12 +1832,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     box-sizing: border-box;
 }
 
-.detail-side-hit-area {
-    width: 24px;
-    height: 100%;
-    flex-shrink: 0;
-}
-
 .card-scroll-view {
     overflow-y: auto;
     padding-right: 0;
@@ -1741,14 +1840,14 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 .detail-scroll-view {
-    width: auto;
+    width: 100%;
     height: 100%;
     min-width: 0;
     flex: 1;
 }
 
 .detail-scroll-view .scroll-content-container {
-    padding-right: 8px;
+    padding-right: 4px;
 }
 
 /* Custom premium thin scrollbar styling */
@@ -1771,14 +1870,71 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 .scroll-content-container {
-    padding-right: 20px;
+    padding-right: 12px;
     box-sizing: border-box;
     width: 100%;
 }
 
+.detail-section {
+    margin-bottom: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.light .detail-section {
+    background: rgba(248, 250, 252, 0.78);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.dark .detail-section {
+    background: rgba(39, 39, 42, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detail-section-header {
+    min-height: 44px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.detail-section-header .section-header-title {
+    margin-bottom: 0;
+}
+
+.section-toggle-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.light .section-toggle-icon {
+    color: #2563EB;
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.dark .section-toggle-icon {
+    color: #93C5FD;
+    background: rgba(147, 197, 253, 0.1);
+}
+
+.detail-section-body {
+    padding: 0 8px 12px;
+    box-sizing: border-box;
+}
+
 /* Definitions List */
 .definitions-container {
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 .section-header-title {
@@ -1829,7 +1985,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 
 /* Word Anatomy Section */
 .anatomy-container {
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 .anatomy-grid {
@@ -1932,7 +2088,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 
 /* Examples Section */
 .examples-container {
-    padding-bottom: 16px;
+    padding-bottom: 0;
 }
 
 .examples-vertical-list {
@@ -2225,6 +2381,51 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     text-transform: uppercase;
 }
 .dark .section-label {
+    color: #A1A1AA;
+}
+
+.tts-toggle-card {
+    min-height: 58px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+    background-color: #F8FAFC;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.dark .tts-toggle-card {
+    background-color: #27272A;
+    border-color: #3F3F46;
+}
+
+.tts-toggle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.tts-toggle-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0F172A;
+}
+
+.dark .tts-toggle-title {
+    color: #F4F4F5;
+}
+
+.tts-toggle-desc {
+    font-size: 12px;
+    line-height: 1.35;
+    color: #64748B;
+}
+
+.dark .tts-toggle-desc {
     color: #A1A1AA;
 }
 

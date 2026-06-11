@@ -20,7 +20,7 @@ type DetailSectionKey = 'definitions' | 'examples' | 'anatomy';
 
 const createDefaultDetailSections = () => ({
     definitions: true,
-    examples: true,
+    examples: false,
     anatomy: false
 });
 

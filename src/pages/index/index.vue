@@ -614,10 +614,10 @@ onUnmounted(() => {
           <!-- Scrollable details container (Static mock) -->
           <view 
             v-if="bgWordObj" 
-            class="relative card-scroll-view flex-1 overflow-hidden"
+            class="relative flex flex-col justify-between flex-1 overflow-hidden"
           >
               <!-- Realistic Structured Skeleton Background Mock -->
-              <view class="w-full h-full pr-1 box-border opacity-35 select-none pointer-events-none">
+              <view class="w-full flex-1 pr-1 box-border opacity-35 select-none pointer-events-none">
                   <!-- Section 1: Definitions Skeleton -->
                   <view class="detail-section mb-3">
                       <view class="detail-section-header">
@@ -653,16 +653,11 @@ onUnmounted(() => {
                   </view>
               </view>
 
-              <!-- Frosted Peek Tap Overlay Mock -->
-              <view
-                class="absolute inset-0 flex-col-center z-20 pointer-events-none"
-              >
-                  <view class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--ej-bg-card)]/95 backdrop-blur-md border border-solid border-[var(--ej-border)] shadow-md">
-                      <view class="w-6 h-6 rounded-full flex-center bg-[var(--ej-color-brand-light)] text-[13px]">
-                          💡
-                      </view>
-                      <text class="text-[13px] font-semibold tracking-wide text-[var(--ej-color-brand)]">{{ i18n.quizPrompt }}</text>
-                  </view>
+              <!-- Bottom subtle hint mock -->
+              <view class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
+                  <text class="text-xs text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
+                      💡 {{ i18n.quizPrompt }}
+                  </text>
               </view>
           </view>
 
@@ -743,14 +738,14 @@ onUnmounted(() => {
               <!-- 1. Static Structured Skeleton (Visible when !knowFlag: calm, static, mirrors revealed sections) -->
               <view
                 v-if="!knowFlag"
-                class="absolute inset-0 flex flex-col w-full h-full cursor-pointer z-10"
+                class="absolute inset-0 flex flex-col justify-between w-full h-full cursor-pointer z-10"
                 @click="handleCardTap"
                 @touchstart="onCardTouchStart"
                 @touchmove="onCardTouchMove"
                 @touchend="onCardTouchEnd"
               >
                   <!-- Background Static Skeleton Bars (Matches revealed sections layout) -->
-                  <view class="w-full h-full pr-1 box-border opacity-35 select-none pointer-events-none">
+                  <view class="w-full flex-1 pr-1 box-border opacity-35 select-none pointer-events-none">
                       <!-- Section 1: Definitions Skeleton -->
                       <view class="detail-section mb-3">
                           <view class="detail-section-header">
@@ -786,14 +781,11 @@ onUnmounted(() => {
                       </view>
                   </view>
 
-                  <!-- Floating Frosted Peek Pill Badge -->
-                  <view class="absolute inset-0 flex-col-center z-20 pointer-events-none">
-                      <view class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--ej-bg-card)]/95 backdrop-blur-md border border-solid border-[var(--ej-border)] shadow-md transition-transform active:scale-95">
-                          <view class="w-6 h-6 rounded-full flex-center bg-[var(--ej-color-brand-light)] text-[13px]">
-                              💡
-                          </view>
-                          <text class="text-[13px] font-semibold tracking-wide text-[var(--ej-color-brand)]">{{ i18n.quizPrompt }}</text>
-                      </view>
+                  <!-- Bottom subtle hint (Clean, natural, no floating sticker in the middle) -->
+                  <view class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
+                      <text class="text-xs text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
+                          💡 {{ i18n.quizPrompt }}
+                      </text>
                   </view>
               </view>
 

@@ -999,63 +999,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     color: var(--ej-text-primary);
 }
 
-/* Dynamic Up swipe transitions (Next Word) */
-.card-slide-out-up {
-    transform: translateY(-120%) !important;
-    opacity: 0 !important;
-    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease;
-}
-.card-reset-down {
-    transition: none !important;
-    transform: translateY(120%);
-    opacity: 0;
-}
-.card-slide-in-up {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-/* Dynamic Down swipe transitions (Previous Word) */
-.card-slide-out-down {
-    transform: translateY(120%);
-    opacity: 0;
-}
-.card-reset-up {
-    transition: none !important;
-    transform: translateY(-120%);
-    opacity: 0;
-}
-.card-slide-in-down {
-    animation: slide-in-down-anim 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-
-@keyframes slide-in-down-anim {
-    0% { transform: translateY(-120%); }
-    100% { transform: translateY(0); }
-}
-
-/* Cancelled/Instant transitions */
-.card-slide-in-down-instant {
-    transform: translateY(0) !important;
-    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-}
-.card-slide-out-up-instant {
-    transform: translateY(-120%) !important;
-    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-}
-.active-card-to-back-instant {
-    transform: scale(0.94) translateY(18px) !important;
-    opacity: 0.88 !important;
-    z-index: 5 !important;
-    transition: none !important;
-}
-.card-reset-center {
-    transition: none !important;
-    transform: translateY(0) !important;
-    opacity: 1 !important;
-}
-
-/* Background Stack Card & animations */
+/* Background Stack Card */
 .app-card-bg {
     position: absolute;
     top: 4vh;
@@ -1082,70 +1026,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     opacity: 0.85;
     z-index: 5;
     pointer-events: none;
-}
-
-.bg-card-to-active {
-    transform: scale(1) translateY(0) !important;
-    opacity: 1 !important;
-    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease;
-}
-
-.bg-card-to-back {
-    animation: bg-card-to-back-anim 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-
-@keyframes bg-card-to-back-anim {
-    0% { transform: scale(1) translateY(0); opacity: 1; }
-    100% { transform: scale(0.94) translateY(24px); opacity: 0.85; }
-}
-
-.bg-card-to-back-instant {
-    transform: scale(0.94) translateY(24px) !important;
-    opacity: 0.85 !important;
-    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
-}
-
-.bg-card-reset-back {
-    transform: scale(0.94) translateY(24px) !important;
-    opacity: 0.85 !important;
-    z-index: 5 !important;
-    transition: none !important;
-}
-
-.bg-card-to-active-instant {
-    transform: scale(1) translateY(0) !important;
-    opacity: 1 !important;
-    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
-}
-
-.prev-card-to-active-instant {
-    transform: translateY(0) !important;
-    opacity: 1 !important;
-    z-index: 10 !important;
-    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
-}
-
-.static-detail-view {
-    overflow: hidden;
-}
-
-/* Word Info Top Section */
-.word-card-top {
-    margin-bottom: 12px;
-}
-
-.word-flex-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.word-left-col {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    min-width: 0;
 }
 
 /* Word Info Top Section */
@@ -1442,25 +1322,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     background-color: var(--ej-bg-btn-secondary-active);
 }
 
-@keyframes speaker-pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.08);
-    }
-}
 
-@keyframes speaker-ripple {
-    0% {
-        transform: scale(1);
-        opacity: 0.8;
-    }
-    100% {
-        transform: scale(1.5);
-        opacity: 0;
-    }
-}
 
 .flex-center {
     display: flex;

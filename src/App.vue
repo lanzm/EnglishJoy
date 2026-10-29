@@ -12,4 +12,5 @@ onHide(() => {
 </script>
 <style>
 @import "@/styles/theme.css";
+@import "@/styles/animations.css";
 </style>

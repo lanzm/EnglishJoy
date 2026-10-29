@@ -54,9 +54,6 @@ const setLang = (newLang: Language) => {
 // Memory cache for all words in the current book
 const wordList = ref<WordItem[]>([]);
 
-// Custom Saved Word List state
-const savedWords = ref<WordItem[]>([]);
-
 // Backing-history tracking list and index pointer for session
 const historyWords = ref<WordItem[]>([]);
 const historyIndex = ref(-1);
@@ -180,36 +177,6 @@ const currentWordAnatomy = computed(() => {
     };
 });
 
-const loadSavedWords = () => {
-    const list = uni.getStorageSync('saved_words');
-    try {
-        savedWords.value = list ? JSON.parse(list) : [];
-    } catch (e) {
-        savedWords.value = [];
-    }
-};
-
-const addToWordList = (word: WordItem | null) => {
-    if (!word) return;
-    loadSavedWords();
-    const exists = savedWords.value.some(w => w.w.toLowerCase() === word.w.toLowerCase());
-    if (!exists) {
-        savedWords.value.push(word);
-        uni.setStorageSync('saved_words', JSON.stringify(savedWords.value));
-        commonUtil.msg(i18n.value.addedAlert, "success");
-    } else {
-        commonUtil.msg(i18n.value.alreadyAddedAlert);
-    }
-    nextWordDirectional('up');
-};
-
-const removeFromWordList = (wordW: string) => {
-    loadSavedWords();
-    savedWords.value = savedWords.value.filter(w => w.w.toLowerCase() !== wordW.toLowerCase());
-    uni.setStorageSync('saved_words', JSON.stringify(savedWords.value));
-    commonUtil.msg(i18n.value.removedAlert);
-};
-
 const nextWord = () => {
     nextWordDirectional('up');
 };
@@ -217,23 +184,6 @@ const nextWord = () => {
 const handleCardTap = () => {
     if (preventClick.value) return;
     knowFlag.value = true;
-};
-
-const viewSavedWord = (word: WordItem) => {
-    const existingIndex = historyWords.value.findIndex(w => w.w.toLowerCase() === word.w.toLowerCase());
-    if (existingIndex !== -1) {
-        historyIndex.value = existingIndex;
-    } else {
-        historyWords.value = historyWords.value.slice(0, historyIndex.value + 1);
-        historyWords.value.push(word);
-        historyIndex.value = historyWords.value.length - 1;
-    }
-    wordObj.value = word;
-    knowFlag.value = true; // Auto-reveal details for viewed words
-    showDrawer.value = false;
-    getSpeech();
-    updatePreloadedNextWord();
-    syncBgCard();
 };
 
 const updateNavBarColor = () => {
@@ -605,7 +555,6 @@ const initData = () => {
     const savedTtsDisabled = uni.getStorageSync('ttsDisabled');
     ttsDisabled.value = savedTtsDisabled === true || savedTtsDisabled === 'true';
     updateNavBarColor();
-    loadSavedWords();
 
     wordBook.value = commonUtil.getCurrWordBook();
     loadWordBook();
@@ -692,14 +641,7 @@ onUnmounted(() => {
           <!-- Footer Buttons (Static mock) -->
           <view class="mt-4 shrink-0">
               <view class="w-full">
-                  <view v-if="bgKnowFlag" class="flex gap-3">
-                      <view class="card-btn btn-secondary flex-[3] text-sm">{{ i18n.addWordBtn }}</view>
-                      <view class="card-btn btn-primary flex-[7] text-base">{{ i18n.nextBtn }}</view>
-                  </view>
-                  <view v-else class="flex gap-3">
-                      <view class="card-btn btn-secondary flex-[3] text-sm">{{ i18n.dontKnowBtn }}</view>
-                      <view class="card-btn btn-primary flex-[7] text-base">{{ i18n.knowBtn }}</view>
-                  </view>
+                  <view class="card-btn btn-primary text-base">{{ i18n.nextBtn }}</view>
               </view>
           </view>
       </view>
@@ -884,24 +826,9 @@ onUnmounted(() => {
             @touchmove="onCardTouchMove"
             @touchend="onCardTouchEnd"
           >
-              <view v-if="wordObj && !loading" class="w-full">
-                  <!-- When definition is shown: Add to Word List (secondary) & Next Word (primary) -->
-                  <view v-if="knowFlag" class="flex gap-3">
-                      <view class="card-btn btn-secondary flex-[3] text-sm" @click.stop="addToWordList(wordObj)">
-                          {{ i18n.addWordBtn }}
-                      </view>
-                      <view class="card-btn btn-primary flex-[7] text-base" @click.stop="nextWord()">
-                          {{ i18n.nextBtn }}
-                      </view>
-                  </view>
-                  <!-- When definition is hidden: Don't Know (secondary) & Know (primary) -->
-                  <view v-else class="flex gap-3">
-                      <view class="card-btn btn-secondary flex-[3] text-sm animate-fade-in" @click.stop="knowFlag = true">
-                          {{ i18n.dontKnowBtn }}
-                      </view>
-                      <view class="card-btn btn-primary flex-[7] text-base animate-fade-in" @click.stop="nextWord()">
-                          {{ i18n.knowBtn }}
-                      </view>
+              <view class="w-full">
+                  <view class="card-btn btn-primary text-base" @click.stop="nextWord()">
+                      {{ i18n.nextBtn }}
                   </view>
               </view>
           </view>
@@ -939,7 +866,6 @@ onUnmounted(() => {
         :lang="lang"
         :tts-disabled="ttsDisabled"
         :current-book-value="wordBook?.value || ''"
-        :saved-words="savedWords"
         :word-num="wordNum"
         :i18n="i18n"
         :word-book-list="commonUtil.wordBookList"
@@ -948,8 +874,6 @@ onUnmounted(() => {
         @change-lang="setLang"
         @change-tts="setTtsEnabled"
         @reset-progress="resetProgress"
-        @view-saved-word="viewSavedWord"
-        @remove-saved-word="removeFromWordList"
       />
 
   </movable-area>

@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import type { WordItem, WordBookMeta } from '@/types/word';
+import type { WordBookMeta } from '@/types/word';
 import type { Language, Translations } from '@/utils/i18n';
 
-const props = defineProps<{
+defineProps<{
     show: boolean;
     isDark: 'dark' | 'light';
     lang: Language;
     ttsDisabled: boolean;
     currentBookValue: string;
-    savedWords: WordItem[];
     wordNum: number;
     i18n: Translations;
     wordBookList: WordBookMeta[];
@@ -22,17 +20,7 @@ const emit = defineEmits<{
     (e: 'change-lang', lang: Language): void;
     (e: 'change-tts', enabled: boolean): void;
     (e: 'reset-progress'): void;
-    (e: 'view-saved-word', word: WordItem): void;
-    (e: 'remove-saved-word', wordW: string): void;
 }>();
-
-const showSavedWordsList = ref(false);
-
-watch(() => props.show, (newVal) => {
-    if (!newVal) {
-        showSavedWordsList.value = false;
-    }
-});
 
 const closeDrawer = () => {
     emit('update:show', false);
@@ -50,8 +38,7 @@ const closeDrawer = () => {
         
         <!-- Settings Drawer Panel -->
         <view class="drawer-panel" :class="{ 'show': show }">
-            <!-- Main Settings View -->
-            <view v-if="!showSavedWordsList" class="flex flex-col w-full h-full overflow-hidden">
+            <view class="flex flex-col w-full h-full overflow-hidden">
                 <view class="flex justify-between items-center mb-4">
                     <text class="drawer-title-style">{{ i18n.settingsTitle }}</text>
                     <view class="text-xl text-[var(--ej-text-sub)] cursor-pointer p-1" @click="closeDrawer">✕</view>
@@ -140,22 +127,7 @@ const closeDrawer = () => {
                             </view>
                         </view>
 
-                        <!-- Option 3: Word List -->
-                        <view class="mb-4">
-                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.wordListLabel }}</text>
-                            <view class="list-card-item bg-[var(--ej-bg-sub)] border-[var(--ej-border)] active:opacity-80 cursor-pointer" @click="showSavedWordsList = true">
-                                <view class="flex items-center gap-3">
-                                    <text class="text-[22px]">📁</text>
-                                    <view class="flex flex-col">
-                                        <text class="text-sm font-bold text-[var(--ej-text-primary)]">{{ i18n.savedWordsTitle }}</text>
-                                        <text class="text-xs text-[var(--ej-text-muted)] mt-0.5">{{ i18n.totalWordsCount(savedWords.length) }}</text>
-                                    </view>
-                                </view>
-                                <text class="text-base font-bold text-[var(--ej-text-muted)]">→</text>
-                            </view>
-                        </view>
-
-                        <!-- Option 4: Session progress info -->
+                        <!-- Option 3: Session progress info -->
                         <view class="mb-4">
                             <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.progressLabel }}</text>
                             <view class="list-card-item bg-[var(--ej-bg-sub)] border-[var(--ej-border)]">
@@ -165,50 +137,6 @@ const closeDrawer = () => {
                         </view>
                     </view>
                 </scroll-view>
-            </view>
-
-            <!-- Word List Management View -->
-            <view v-else class="flex flex-col w-full h-full overflow-hidden">
-                <view class="flex justify-between items-center mb-4">
-                    <view class="flex items-center gap-2 text-[var(--ej-color-brand)] cursor-pointer" @click="showSavedWordsList = false">
-                        <text>←</text>
-                        <text>{{ i18n.backToSettings }}</text>
-                    </view>
-                    <text class="drawer-title-style">{{ i18n.wordListLabel }} ({{ savedWords.length }})</text>
-                    <view class="text-xl text-[var(--ej-text-sub)] cursor-pointer p-1" @click="closeDrawer">✕</view>
-                </view>
-
-                <view class="flex-1 overflow-hidden">
-                    <scroll-view scroll-y="true" class="flex-1 min-h-0 h-full">
-                        <view class="pr-3 box-border w-full">
-                            <view v-if="savedWords.length === 0" class="flex-col-center py-10 gap-3">
-                                <text class="text-[32px] opacity-50">📂</text>
-                                <text class="text-[13.5px] text-[var(--ej-text-muted)]">{{ i18n.emptyListPrompt }}</text>
-                            </view>
-                            <view v-else class="flex flex-col gap-2 pb-5">
-                                <view 
-                                    v-for="word in savedWords" 
-                                    :key="word.w" 
-                                    class="list-card-item bg-[var(--ej-bg-sub)] border-[var(--ej-border)] active:opacity-85"
-                                    @click="emit('view-saved-word', word)"
-                                >
-                                    <view class="flex flex-col gap-1 flex-1 pr-3">
-                                        <view class="flex items-baseline gap-2">
-                                            <text class="text-base font-bold text-[var(--ej-text-primary)]">{{ word.w }}</text>
-                                            <text class="text-[12.5px] text-[var(--ej-text-muted)] font-mono">/{{ word.p }}/</text>
-                                        </view>
-                                        <text class="text-[13px] text-[var(--ej-text-secondary)] whitespace-nowrap overflow-hidden text-ellipsis">
-                                            {{ word.t && word.t[0] ? `(${word.t[0][0]}) ${word.t[0][1]}` : '' }}
-                                        </text>
-                                    </view>
-                                    <view class="w-7 h-7 rounded-full flex-center bg-[var(--ej-bg-card)] border border-solid border-[var(--ej-border)] shrink-0 active:scale-90" @click.stop="emit('remove-saved-word', word.w)">
-                                        <text class="text-xs text-red-500">✕</text>
-                                    </view>
-                                </view>
-                            </view>
-                        </view>
-                    </scroll-view>
-                </view>
             </view>
         </view>
     </view>

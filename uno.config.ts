@@ -85,8 +85,8 @@ export default defineConfig({
         { "flex-col-center": "flex justify-center items-center flex-col" },
         { "card-btn": "flex items-center justify-center h-[50px] rounded-xl font-bold transition-all box-border w-full active:scale-97" },
         { "card-pill": "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all" },
-        { "drawer-title-style": "text-lg font-extrabold tracking-tight" },
-        { "section-label-style": "text-xs font-bold uppercase tracking-wider mb-2 block" },
+        { "drawer-title-style": "text-lg font-bold tracking-tight" },
+        { "section-label-style": "text-xs font-semibold tracking-wide mb-2 block" },
         { "skeleton-shimmer": "animate-pulse bg-slate-200 dark:bg-zinc-800" },
         { "list-card-item": "flex items-center justify-between p-3.5 rounded-xl border transition-all" }
     ],

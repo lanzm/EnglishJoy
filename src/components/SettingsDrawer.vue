@@ -6,6 +6,7 @@ defineProps<{
     show: boolean;
     isDark: 'dark' | 'light';
     lang: Language;
+    studyMode: 'quiz' | 'browse';
     ttsDisabled: boolean;
     currentBookValue: string;
     wordNum: number;
@@ -16,6 +17,7 @@ defineProps<{
 const emit = defineEmits<{
     (e: 'update:show', val: boolean): void;
     (e: 'change-book', item: WordBookMeta): void;
+    (e: 'change-study-mode', mode: 'quiz' | 'browse'): void;
     (e: 'change-theme', theme: 'dark' | 'light'): void;
     (e: 'change-lang', lang: Language): void;
     (e: 'change-tts', enabled: boolean): void;
@@ -40,7 +42,7 @@ const closeDrawer = () => {
         <view class="drawer-panel" :class="{ 'show': show }">
             <view class="flex flex-col w-full h-full overflow-hidden">
                 <view class="flex justify-between items-center mb-4">
-                    <text class="drawer-title-style">{{ i18n.settingsTitle }}</text>
+                    <text class="text-[17px] font-bold tracking-tight text-[var(--ej-text-primary)]">{{ i18n.settingsTitle }}</text>
                     <view class="text-xl text-[var(--ej-text-sub)] cursor-pointer p-1" @click="closeDrawer">✕</view>
                 </view>
                 
@@ -57,12 +59,38 @@ const closeDrawer = () => {
                                     :class="{ 'active': currentBookValue === item.value }"
                                     @click="emit('change-book', item)"
                                 >
-                                    <text class="text-sm text-center">{{ i18n.wordBookLabels[item.value] || item.label }}</text>
+                                    <text class="text-sm font-medium text-center">{{ i18n.wordBookLabels[item.value] || item.label }}</text>
                                     <text class="book-card-count">{{ i18n.wordBookCountText(item.count) }}</text>
                                 </view>
                             </view>
                         </view>
                         
+                        <!-- Option 1.5: Study Mode Toggle (Quiz vs Browse) -->
+                        <view class="mb-4">
+                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.studyModeLabel }}</text>
+                            <view class="flex rounded-xl border border-solid border-[var(--ej-border)] overflow-hidden bg-[var(--ej-bg-sub)]">
+                                <view 
+                                    class="theme-switch-option"
+                                    :class="{ 'active': studyMode === 'quiz' }"
+                                    @click="emit('change-study-mode', 'quiz')"
+                                >
+                                    {{ i18n.quizModeText }}
+                                </view>
+                                <view 
+                                    class="theme-switch-option"
+                                    :class="{ 'active': studyMode === 'browse' }"
+                                    @click="emit('change-study-mode', 'browse')"
+                                >
+                                    {{ i18n.browseModeText }}
+                                </view>
+                            </view>
+                            <view class="mt-1.5 px-1 flex items-center">
+                                <text class="text-[11px] text-[var(--ej-text-muted)] leading-tight">
+                                    💡 {{ studyMode === 'quiz' ? i18n.quizModeDesc : i18n.browseModeDesc }}
+                                </text>
+                            </view>
+                        </view>
+
                         <!-- Option 2: Theme Toggle -->
                         <view class="mb-4">
                             <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.themeLabel }}</text>
@@ -114,14 +142,15 @@ const closeDrawer = () => {
                         <!-- Option 2.6: TTS Toggle -->
                         <view class="mb-4">
                             <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.ttsLabel }}</text>
-                            <view class="list-card-item min-h-[58px] bg-[var(--ej-bg-sub)] border-[var(--ej-border)]">
-                                <view class="flex flex-col gap-1 min-w-0">
-                                    <text class="text-sm font-bold text-[var(--ej-text-primary)]">{{ i18n.ttsTitle }}</text>
-                                    <text class="text-xs leading-[1.35] text-[var(--ej-text-muted)]">{{ ttsDisabled ? i18n.ttsDisabledHint : i18n.ttsEnabledHint }}</text>
+                            <view class="settings-row-card">
+                                <view class="flex flex-col gap-0.5 min-w-0">
+                                    <text class="text-sm font-medium text-[var(--ej-text-primary)]">{{ i18n.ttsTitle }}</text>
+                                    <text class="text-[11px] text-[var(--ej-text-muted)] leading-tight">{{ ttsDisabled ? i18n.ttsDisabledHint : i18n.ttsEnabledHint }}</text>
                                 </view>
                                 <switch
                                     :checked="!ttsDisabled"
                                     color="#2563EB"
+                                    class="settings-switch"
                                     @change="emit('change-tts', ($event as any).detail.value)"
                                 />
                             </view>
@@ -130,8 +159,8 @@ const closeDrawer = () => {
                         <!-- Option 3: Session progress info -->
                         <view class="mb-4">
                             <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.progressLabel }}</text>
-                            <view class="list-card-item bg-[var(--ej-bg-sub)] border-[var(--ej-border)]">
-                                <text class="text-sm">{{ i18n.progressCount(wordNum) }}</text>
+                            <view class="settings-row-card">
+                                <text class="text-sm font-medium text-[var(--ej-text-primary)]">{{ i18n.progressCount(wordNum) }}</text>
                                 <view class="reset-progress-btn" @click="emit('reset-progress')">{{ i18n.resetBtnText }}</view>
                             </view>
                         </view>
@@ -202,12 +231,12 @@ const closeDrawer = () => {
     border-color: var(--ej-color-brand);
     background-color: var(--ej-color-brand-subtle);
     color: var(--ej-color-brand);
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .book-card-count {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
     text-align: center;
     color: var(--ej-text-muted);
 }
@@ -229,7 +258,7 @@ const closeDrawer = () => {
 .theme-switch-option.active {
     background-color: var(--ej-bg-card);
     color: var(--ej-color-brand);
-    font-weight: bold;
+    font-weight: 600;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -255,7 +284,7 @@ const closeDrawer = () => {
 
 .reset-progress-btn {
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 600;
     color: #EF4444;
     padding: 4px 8px;
     border-radius: 6px;
@@ -268,5 +297,23 @@ const closeDrawer = () => {
 }
 .reset-progress-btn:active {
     opacity: 0.8;
+}
+
+.settings-row-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--ej-border);
+    background-color: var(--ej-bg-sub);
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.settings-switch {
+    transform: scale(0.8);
+    transform-origin: right center;
+    margin-right: -4px;
 }
 </style>

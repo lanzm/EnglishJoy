@@ -23,6 +23,11 @@ export interface Translations {
     
     settingsTitle: string;
     currentBookLabel: string;
+    studyModeLabel: string;
+    quizModeText: string;
+    browseModeText: string;
+    quizModeDesc: string;
+    browseModeDesc: string;
     themeLabel: string;
     ttsLabel: string;
     ttsTitle: string;
@@ -85,6 +90,11 @@ export const getTranslations = (lang: Language): Translations => {
         // Drawer main settings
         settingsTitle: isZh ? '设置选项' : 'Settings',
         currentBookLabel: isZh ? '当前词书' : 'Current Wordbook',
+        studyModeLabel: isZh ? '刷词模式' : 'Study Mode',
+        quizModeText: isZh ? '自测模式' : 'Quiz Mode',
+        browseModeText: isZh ? '速览模式' : 'Browse Mode',
+        quizModeDesc: isZh ? '默认遮挡释义，轻触卡片查看' : 'Hide definitions, tap card to reveal',
+        browseModeDesc: isZh ? '直接显示释义与例句，无需点击' : 'Directly show all definitions and examples',
         themeLabel: isZh ? '显示模式' : 'Display Mode',
         ttsLabel: isZh ? '发音设置' : 'Pronunciation',
         ttsTitle: isZh ? '单词发音' : 'Word Pronunciation',

@@ -16,6 +16,7 @@ const detailScrollTop = ref(0);
 const hasDetailOverflow = ref(false);
 const wordBook = ref<WordBookMeta | null>(null);
 const wordNum = ref(0);
+const studyMode = ref<'quiz' | 'browse'>('quiz');
 const knowFlag = ref(false); // Controls whether the translations are revealed
 const preventClick = ref(false);
 const { playFlag, playWord, stopAudio } = useWordAudio();
@@ -165,7 +166,7 @@ const syncBgCard = () => {
         return;
     }
     bgWordObj.value = getNextWord();
-    bgKnowFlag.value = false;
+    bgKnowFlag.value = studyMode.value === 'browse';
 };
 
 const currentWordAnatomy = computed(() => {
@@ -208,6 +209,13 @@ const setTheme = (theme: 'dark' | 'light') => {
     updateNavBarColor();
 };
 
+const setStudyMode = (mode: 'quiz' | 'browse') => {
+    studyMode.value = mode;
+    uni.setStorageSync('studyMode', mode);
+    knowFlag.value = mode === 'browse';
+    syncBgCard();
+};
+
 
 const setTtsDisabled = (disabled: boolean) => {
     ttsDisabled.value = disabled;
@@ -247,7 +255,7 @@ const loadWordBook = () => {
 
 // Raw, non-animated word loading (used on initialization)
 const randomWord = () => {
-    knowFlag.value = false;
+    knowFlag.value = studyMode.value === 'browse';
     if (wordList.value.length === 0) {
         loadWordBook();
         return;
@@ -308,7 +316,7 @@ const nextWordDirectional = (dir: 'up' | 'down') => {
     }
 
     if (dir === 'up') {
-        knowFlag.value = false;
+        knowFlag.value = studyMode.value === 'browse';
     }
 
     cardTransitionClass.value = dir === 'up' ? 'card-slide-out-up' : 'card-slide-in-down';
@@ -317,7 +325,7 @@ const nextWordDirectional = (dir: 'up' | 'down') => {
     setTimeout(() => {
         // Change content and reset hidden state mid-transition
         if (dir === 'up') {
-            knowFlag.value = false;
+            knowFlag.value = studyMode.value === 'browse';
             wordObj.value = historyWords.value[historyIndex.value];
             
             // Instantly teleport the card back to center without animation
@@ -556,6 +564,11 @@ const initData = () => {
     if (savedLang === 'zh' || savedLang === 'en') {
         lang.value = savedLang;
     }
+    const savedStudyMode = uni.getStorageSync('studyMode');
+    if (savedStudyMode === 'quiz' || savedStudyMode === 'browse') {
+        studyMode.value = savedStudyMode;
+    }
+    knowFlag.value = studyMode.value === 'browse';
     const savedTtsDisabled = uni.getStorageSync('ttsDisabled');
     ttsDisabled.value = savedTtsDisabled === true || savedTtsDisabled === 'true';
     updateNavBarColor();
@@ -616,49 +629,84 @@ onUnmounted(() => {
             v-if="bgWordObj" 
             class="relative flex flex-col justify-between flex-1 overflow-hidden"
           >
-              <!-- Realistic Structured Skeleton Background Mock -->
-              <view class="w-full flex-1 pr-1 box-border opacity-35 select-none pointer-events-none">
-                  <!-- Section 1: Definitions Skeleton -->
-                  <view class="detail-section mb-3">
-                      <view class="detail-section-header">
-                          <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                          <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
-                      </view>
-                      <view class="px-2 pb-3 box-border flex flex-col gap-3">
-                          <view class="flex flex-col gap-1.5">
-                              <view class="w-14 h-3 rounded bg-[var(--ej-border)]"></view>
-                              <view class="w-4/5 h-3.5 rounded bg-[var(--ej-border)]"></view>
+              <!-- 1. Realistic Structured Skeleton Background Mock (When !bgKnowFlag) -->
+              <template v-if="!bgKnowFlag">
+                  <view class="w-full flex-1 pr-1 box-border opacity-35 select-none pointer-events-none">
+                      <!-- Section 1: Definitions Skeleton -->
+                      <view class="detail-section mb-3">
+                          <view class="detail-section-header">
+                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
+                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
                           </view>
-                          <view class="flex flex-col gap-1.5">
-                              <view class="w-12 h-3 rounded bg-[var(--ej-border)]"></view>
-                              <view class="w-3/5 h-3.5 rounded bg-[var(--ej-border)]"></view>
+                          <view class="px-2 pb-3 box-border flex flex-col gap-3">
+                              <view class="flex flex-col gap-1.5">
+                                  <view class="w-14 h-3 rounded bg-[var(--ej-border)]"></view>
+                                  <view class="w-4/5 h-3.5 rounded bg-[var(--ej-border)]"></view>
+                              </view>
+                              <view class="flex flex-col gap-1.5">
+                                  <view class="w-12 h-3 rounded bg-[var(--ej-border)]"></view>
+                                  <view class="w-3/5 h-3.5 rounded bg-[var(--ej-border)]"></view>
+                              </view>
+                          </view>
+                      </view>
+
+                      <!-- Section 2: Examples Skeleton -->
+                      <view class="detail-section mb-3 pb-0">
+                          <view class="detail-section-header">
+                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
+                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
+                          </view>
+                      </view>
+
+                      <!-- Section 3: Word Anatomy Skeleton -->
+                      <view class="detail-section mb-3">
+                          <view class="detail-section-header">
+                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
+                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
                           </view>
                       </view>
                   </view>
 
-                  <!-- Section 2: Examples Skeleton -->
-                  <view class="detail-section mb-3 pb-0">
-                      <view class="detail-section-header">
-                          <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                          <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
+                  <!-- Bottom subtle hint mock -->
+                  <view class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
+                      <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
+                          💡 {{ i18n.quizPrompt }}
+                      </text>
+                  </view>
+              </template>
+
+              <!-- 2. Real Content Mock (When bgKnowFlag is true) -->
+              <template v-else>
+                  <view class="w-full flex-1 pr-1 box-border select-none pointer-events-none overflow-hidden">
+                      <view class="detail-section mb-3">
+                          <view class="detail-section-header">
+                              <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
+                              <text class="section-toggle-icon">-</text>
+                          </view>
+                          <view class="px-2 pb-3 box-border">
+                              <view class="flex flex-col gap-3">
+                                  <view
+                                    v-for="(item, index) in bgWordObj.t"
+                                    :key="index"
+                                    class="flex flex-col gap-0.5"
+                                  >
+                                      <text class="item-number-prefix">
+                                          {{ index + 1 }}.<template v-if="formatDefinitionPos(item[0])"> ({{ formatDefinitionPos(item[0]) }})</template>
+                                      </text>
+                                      <text class="item-definition-content">{{ formatDefinitionContent(item) }}</text>
+                                  </view>
+                              </view>
+                          </view>
+                      </view>
+
+                      <view v-if="bgWordObj?.s && bgWordObj.s.length > 0" class="detail-section mb-3 pb-0">
+                          <view class="detail-section-header">
+                              <text class="section-header-title">{{ i18n.examplesTitle }}</text>
+                              <text class="section-toggle-icon">+</text>
+                          </view>
                       </view>
                   </view>
-
-                  <!-- Section 3: Word Anatomy Skeleton -->
-                  <view class="detail-section mb-3">
-                      <view class="detail-section-header">
-                          <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                          <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
-                      </view>
-                  </view>
-              </view>
-
-              <!-- Bottom subtle hint mock -->
-              <view class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
-                  <text class="text-xs text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
-                      💡 {{ i18n.quizPrompt }}
-                  </text>
-              </view>
+              </template>
           </view>
 
           <!-- Footer Buttons (Static mock) -->
@@ -783,7 +831,7 @@ onUnmounted(() => {
 
                   <!-- Bottom subtle hint (Clean, natural, no floating sticker in the middle) -->
                   <view class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
-                      <text class="text-xs text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
+                      <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
                           💡 {{ i18n.quizPrompt }}
                       </text>
                   </view>
@@ -930,12 +978,14 @@ onUnmounted(() => {
         v-model:show="showDrawer"
         :is-dark="isDark"
         :lang="lang"
+        :study-mode="studyMode"
         :tts-disabled="ttsDisabled"
         :current-book-value="wordBook?.value || ''"
         :word-num="wordNum"
         :i18n="i18n"
         :word-book-list="commonUtil.wordBookList"
         @change-book="changeWordBook"
+        @change-study-mode="setStudyMode"
         @change-theme="setTheme"
         @change-lang="setLang"
         @change-tts="setTtsEnabled"

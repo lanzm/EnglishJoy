@@ -1,23 +1,27 @@
-// 通用方法
+import type { WordBookMeta } from '@/types/word';
 
-const wordBookList = [
+const wordBookList: WordBookMeta[] = [
     {
         label: '四级词汇',
         value: 'CET4luan_1',
+        count: 1162,
     },
     {
         label: '六级词汇',
         value: 'CET6luan_1',
+        count: 1228,
     },
     {
         label: '考研词汇',
         value: 'KaoYanluan_1',
+        count: 1341,
     },
     {
         label: '雅思词汇',
         value: 'IELTSluan_2',
+        count: 3427,
     },
-]
+];
 
 export default {
     wordBookList,

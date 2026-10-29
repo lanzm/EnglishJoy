@@ -1,9 +1,11 @@
+import type { WordItem } from '@/types/word';
+
 // We do NOT statically import JSON files here to prevent them from being bundled into the compiled Javascript code.
 // Instead, they are loaded synchronously on demand at runtime from the local static assets folder.
 
-const cachedData: Record<string, any[]> = {};
+const cachedData: Record<string, WordItem[]> = {};
 
-export const wordBooksData = new Proxy({} as Record<string, any[]>, {
+export const wordBooksData = new Proxy({} as Record<string, WordItem[]>, {
     get(target, prop: string) {
         if (typeof prop !== 'string') {
             return undefined;

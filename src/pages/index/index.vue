@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
 import commonUtil from "@/utils/commonUtil";
 import { wordBooksData } from "@/utils/wordbooks";
+import type { WordItem, WordBookMeta, WordAnatomy } from "@/types/word";
 
 const isDark = ref<'dark' | 'light'>('light')
-const wordObj = ref<any>(null);
+const wordObj = ref<WordItem | null>(null);
 const scrollTop = ref(0);
 const detailScrollTop = ref(0);
 const hasDetailOverflow = ref(false);
-const wordBook = ref<any>(null);
+const wordBook = ref<WordBookMeta | null>(null);
 const wordNum = ref(0);
 const knowFlag = ref(false); // Controls whether the translations are revealed
 const preventClick = ref(false);
@@ -107,23 +108,44 @@ const setLang = (newLang: 'zh' | 'en') => {
 };
 
 // Memory cache for all words in the current book
-const wordList = ref<any[]>([]);
+const wordList = ref<WordItem[]>([]);
 
 // Custom Saved Word List state
-const savedWords = ref<any[]>([]);
+const savedWords = ref<WordItem[]>([]);
 const showSavedWordsList = ref(false);
 
 // Backing-history tracking list and index pointer for session
-const historyWords = ref<any[]>([]);
+const historyWords = ref<WordItem[]>([]);
 const historyIndex = ref(-1);
 
 // Preloaded next word to show in the background card when we are at the end of history
-const preloadedNextWord = ref<any>(null);
+const preloadedNextWord = ref<WordItem | null>(null);
 
 // Background card display states
-const bgWordObj = ref<any>(null);
+const bgWordObj = ref<WordItem | null>(null);
 const bgKnowFlag = ref(false);
 const bgCardTransitionClass = ref('');
+
+// Recent word history to prevent immediate repeats
+const recentWordHistory: string[] = [];
+
+const pickRandomWord = (): WordItem | null => {
+    if (wordList.value.length === 0) return null;
+    if (wordList.value.length <= 5) {
+        return wordList.value[Math.floor(Math.random() * wordList.value.length)];
+    }
+    let candidate = wordList.value[Math.floor(Math.random() * wordList.value.length)];
+    let attempts = 0;
+    while (recentWordHistory.includes(candidate.w.toLowerCase()) && attempts < 10) {
+        candidate = wordList.value[Math.floor(Math.random() * wordList.value.length)];
+        attempts++;
+    }
+    recentWordHistory.push(candidate.w.toLowerCase());
+    if (recentWordHistory.length > Math.min(30, Math.floor(wordList.value.length * 0.5))) {
+        recentWordHistory.shift();
+    }
+    return candidate;
+};
 
 // Swiping down states (when dragging previous word from top)
 const isSwipingDownActive = ref(false);
@@ -194,8 +216,7 @@ const bgCardStyle = computed(() => {
 const updatePreloadedNextWord = () => {
     if (wordList.value.length === 0) return;
     if (!preloadedNextWord.value) {
-        const randomIndex = Math.floor(Math.random() * wordList.value.length);
-        preloadedNextWord.value = wordList.value[randomIndex];
+        preloadedNextWord.value = pickRandomWord();
     }
 };
 
@@ -217,17 +238,8 @@ const syncBgCard = () => {
     bgKnowFlag.value = false;
 };
 
-interface WordAnatomy {
-    syllables: number;
-    difficulty: number;
-    suffixInfo?: {
-        suffix: string;
-        meaning: string;
-    };
-}
-
 const getWordAnatomy = (word: string): WordAnatomy => {
-    if (!word) return { syllables: 1, difficulty: 1 };
+    if (!word) return { syllables: 1, difficulty: 1, vowelsCount: 0, consonantsCount: 0 };
     const lower = word.toLowerCase().trim();
     
     // 1. 计算音节数量 (辅音+元音组合的简易推算规则)
@@ -279,8 +291,20 @@ const getWordAnatomy = (word: string): WordAnatomy => {
         suffixInfo = { suffix: '-ly', meaning: isZh ? '副词后缀，表示以…的方式或状态' : 'Adverb suffix, indicating manner or state' };
     }
     
-    return { syllables, difficulty, suffixInfo };
+    const vowelsCount = lower.match(/[aeiouy]/g)?.length ?? 0;
+    const consonantsCount = Math.max(0, lower.length - vowelsCount);
+
+    return { syllables, difficulty, suffixInfo, vowelsCount, consonantsCount };
 };
+
+const currentWordAnatomy = computed(() => {
+    const w = wordObj.value?.w ?? '';
+    const anatomy = getWordAnatomy(w);
+    return {
+        ...anatomy,
+        wordLength: w.length,
+    };
+});
 
 const loadSavedWords = () => {
     const list = uni.getStorageSync('saved_words');
@@ -291,7 +315,7 @@ const loadSavedWords = () => {
     }
 };
 
-const addToWordList = (word: any) => {
+const addToWordList = (word: WordItem | null) => {
     if (!word) return;
     loadSavedWords();
     const exists = savedWords.value.some(w => w.w.toLowerCase() === word.w.toLowerCase());
@@ -321,7 +345,7 @@ const handleCardTap = () => {
     knowFlag.value = true;
 };
 
-const viewSavedWord = (word: any) => {
+const viewSavedWord = (word: WordItem) => {
     const existingIndex = historyWords.value.findIndex(w => w.w.toLowerCase() === word.w.toLowerCase());
     if (existingIndex !== -1) {
         historyIndex.value = existingIndex;
@@ -408,11 +432,12 @@ const randomWord = () => {
     }
     
     if (historyWords.value.length === 0) {
-        const randomIndex = Math.floor(Math.random() * wordList.value.length);
-        const firstWord = wordList.value[randomIndex];
-        historyWords.value.push(firstWord);
-        historyIndex.value = 0;
-        wordObj.value = firstWord;
+        const firstWord = pickRandomWord();
+        if (firstWord) {
+            historyWords.value.push(firstWord);
+            historyIndex.value = 0;
+            wordObj.value = firstWord;
+        }
     } else {
         wordObj.value = historyWords.value[historyIndex.value];
     }
@@ -450,8 +475,10 @@ const nextWordDirectional = (dir: 'up' | 'down') => {
                     loadWordBook();
                     return;
                 }
-                const randomIndex = Math.floor(Math.random() * wordList.value.length);
-                historyWords.value.push(wordList.value[randomIndex]);
+                const newWord = pickRandomWord();
+                if (newWord) {
+                    historyWords.value.push(newWord);
+                }
             }
             historyIndex.value = historyWords.value.length - 1;
         }
@@ -490,8 +517,30 @@ const nextWordDirectional = (dir: 'up' | 'down') => {
     }, 250);
 };
 
-const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, onPlayEnd?: () => void) => {
+let activeAudioContext: any = null;
+let speechRequestVersion = 0;
+
+const stopCurrentAudio = () => {
+    if (activeAudioContext) {
+        try {
+            activeAudioContext.stop();
+            activeAudioContext.destroy();
+        } catch (e) {
+            // ignore
+        }
+        activeAudioContext = null;
+    }
+    playFlag.value = false;
+};
+
+const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, requestVersion: number, onPlayEnd?: () => void) => {
+    if (requestVersion !== speechRequestVersion) {
+        return;
+    }
+    stopCurrentAudio();
+
     const handleEnd = () => {
+        playFlag.value = false;
         if (onPlayEnd) onPlayEnd();
     };
 
@@ -504,7 +553,12 @@ const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, onPlayEnd?: () 
             data: data,
             encoding: 'binary',
             success: () => {
-                let audioContext = uni.createInnerAudioContext();
+                if (requestVersion !== speechRequestVersion) {
+                    fs.unlink({ filePath: tempFilePath, fail: () => {} });
+                    return;
+                }
+                const audioContext = uni.createInnerAudioContext();
+                activeAudioContext = audioContext;
                 audioContext.autoplay = true;
                 audioContext.src = tempFilePath;
                 audioContext.onPlay(() => {
@@ -515,6 +569,9 @@ const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, onPlayEnd?: () 
                         filePath: tempFilePath,
                         fail: (err) => console.warn('删除临时音频文件失败:', err)
                     });
+                    if (activeAudioContext === audioContext) {
+                        activeAudioContext = null;
+                    }
                     audioContext.destroy();
                     handleEnd();
                 };
@@ -531,16 +588,20 @@ const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, onPlayEnd?: () 
         });
     } else {
         // H5 fallback
-        let base64String = uni.arrayBufferToBase64(data);
-        let audioContext = uni.createInnerAudioContext({
+        const base64String = uni.arrayBufferToBase64(data);
+        const audioContext = uni.createInnerAudioContext({
             useWebAudioImplement: true,
         });
+        activeAudioContext = audioContext;
         audioContext.autoplay = true;
         audioContext.src = 'data:audio/mpeg;base64,' + base64String;
         audioContext.onPlay(() => {
             console.log(logMsg);
         });
         const cleanup = () => {
+            if (activeAudioContext === audioContext) {
+                activeAudioContext = null;
+            }
             audioContext.destroy();
             handleEnd();
         };
@@ -554,35 +615,42 @@ const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, onPlayEnd?: () 
 
 const getSpeech = () => {
     if (ttsDisabled.value) {
-        playFlag.value = false;
+        stopCurrentAudio();
         return;
     }
-    if (!wordObj.value || !wordObj.value.w) return;
-    const word = wordObj.value.w;
+    if (!wordObj.value?.w) return;
+    const currentWord = wordObj.value.w;
+    const thisVersion = ++speechRequestVersion;
+    stopCurrentAudio();
     playFlag.value = true;
+
     uni.request({
-        url: 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=1',
+        url: 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(currentWord) + '&type=1',
         headers: {},
         responseType: 'arraybuffer',
         success: (res) => {
+            if (thisVersion !== speechRequestVersion || wordObj.value?.w !== currentWord) {
+                return;
+            }
             if (res.statusCode !== 200) {
                 console.error('音频获取失败, 状态码:', res.statusCode);
                 playFlag.value = false;
                 return;
             }
-            playArrayBufferAudio(res.data, '播放单词 (有道)', () => {
+            playArrayBufferAudio(res.data as ArrayBuffer, '播放单词 (有道)', thisVersion, () => {
                 playFlag.value = false;
             });
         },
         fail: (err) => {
-            console.error('音频获取失败:', err);
-            playFlag.value = false;
+            if (thisVersion === speechRequestVersion) {
+                console.error('音频获取失败:', err);
+                playFlag.value = false;
+            }
         }
     });
 };
 
-
-const changeWordBook = (item: any) => {
+const changeWordBook = (item: WordBookMeta) => {
     uni.setStorageSync('wordBook', item.value);
     wordBook.value = item;
     loadWordBook();
@@ -594,7 +662,7 @@ const resetProgress = () => {
     commonUtil.msg(i18n.value.resetAlert);
 };
 
-const getUniquePos = (trans: any[]) => {
+const getUniquePos = (trans: [string, string][] | undefined) => {
     if (!trans) return [];
     const posSet = new Set<string>();
     trans.forEach(t => {
@@ -611,6 +679,8 @@ const getUniquePos = (trans: any[]) => {
 };
 
 const getWordBookCount = (bookValue: string) => {
+    const matched = commonUtil.wordBookList.find(b => b.value === bookValue);
+    if (matched?.count) return matched.count;
     return wordBooksData[bookValue]?.length || 0;
 };
 
@@ -927,6 +997,14 @@ const initData = () => {
 onMounted(() => {
     initData();
 });
+
+onUnmounted(() => {
+    if (gearIntroTimer) {
+        clearTimeout(gearIntroTimer);
+        gearIntroTimer = null;
+    }
+    stopCurrentAudio();
+});
 </script>
 
 <template>
@@ -1142,7 +1220,7 @@ onMounted(() => {
                                   <text class="anatomy-item-label">{{ i18n.difficultyLabel }}</text>
                                   <view class="stars-row">
                                       <text
-                                        v-for="star in getWordAnatomy(wordObj.w).difficulty"
+                                        v-for="star in currentWordAnatomy.difficulty"
                                         :key="'star-' + star"
                                         class="star-icon"
                                       >⭐</text>
@@ -1150,18 +1228,18 @@ onMounted(() => {
                               </view>
                               <view class="anatomy-card-item">
                                   <text class="anatomy-item-label">{{ i18n.syllablesLabel }}</text>
-                                  <text class="anatomy-item-value">{{ i18n.syllablesCountText(getWordAnatomy(wordObj.w).syllables) }}</text>
+                                  <text class="anatomy-item-value">{{ i18n.syllablesCountText(currentWordAnatomy.syllables) }}</text>
                               </view>
-                              <view class="anatomy-card-item full-width" v-if="getWordAnatomy(wordObj.w).suffixInfo">
+                              <view class="anatomy-card-item full-width" v-if="currentWordAnatomy.suffixInfo">
                                   <text class="anatomy-item-label">{{ i18n.suffixLabel }}</text>
                                   <view class="anatomy-suffix-box">
-                                      <text class="suffix-badge">{{ getWordAnatomy(wordObj.w).suffixInfo.suffix }}</text>
-                                      <text class="suffix-meaning">{{ getWordAnatomy(wordObj.w).suffixInfo.meaning }}</text>
+                                      <text class="suffix-badge">{{ currentWordAnatomy.suffixInfo.suffix }}</text>
+                                      <text class="suffix-meaning">{{ currentWordAnatomy.suffixInfo.meaning }}</text>
                                   </view>
                               </view>
                               <view class="anatomy-card-item full-width" v-else>
                                   <text class="anatomy-item-label">{{ i18n.lengthLabel }}</text>
-                                  <text class="anatomy-item-value">{{ i18n.wordLengthText(wordObj.w.length, wordObj.w.toLowerCase().match(/[aeiouy]/g)?.length || 0, wordObj.w.length - (wordObj.w.toLowerCase().match(/[aeiouy]/g)?.length || 0)) }}</text>
+                                  <text class="anatomy-item-value">{{ i18n.wordLengthText(currentWordAnatomy.wordLength, currentWordAnatomy.vowelsCount, currentWordAnatomy.consonantsCount) }}</text>
                               </view>
                               </view>
                           </view>

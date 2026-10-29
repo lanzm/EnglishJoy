@@ -307,6 +307,10 @@ const nextWordDirectional = (dir: 'up' | 'down') => {
         wordNum.value += 1;
     }
 
+    if (dir === 'up') {
+        knowFlag.value = false;
+    }
+
     cardTransitionClass.value = dir === 'up' ? 'card-slide-out-up' : 'card-slide-in-down';
     bgCardTransitionClass.value = dir === 'up' ? 'bg-card-to-active' : 'bg-card-to-back';
     
@@ -637,9 +641,11 @@ onUnmounted(() => {
                 v-if="!bgKnowFlag"
                 class="absolute inset-0 flex-col-center z-20 pointer-events-none"
               >
-                  <view class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--ej-bg-card)] border border-solid border-[var(--ej-border)] shadow-md">
-                      <text class="text-base">👁️</text>
-                      <text class="text-sm font-bold text-[var(--ej-text-primary)]">{{ i18n.quizPrompt }}</text>
+                  <view class="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-[var(--ej-bg-card)]/90 backdrop-blur-md border border-solid border-[var(--ej-border)] shadow-lg">
+                      <view class="w-6 h-6 rounded-full flex-center bg-[var(--ej-color-brand-light)] text-[var(--ej-color-brand)] text-xs font-bold">
+                          ✨
+                      </view>
+                      <text class="text-[14px] font-bold tracking-wide text-[var(--ej-text-primary)]">{{ i18n.quizPrompt }}</text>
                   </view>
               </view>
           </view>
@@ -819,9 +825,11 @@ onUnmounted(() => {
                 @touchmove="onCardTouchMove"
                 @touchend="onCardTouchEnd"
               >
-                  <view class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--ej-bg-card)] border border-solid border-[var(--ej-border)] shadow-md transition-transform active:scale-95">
-                      <text class="text-base">👁️</text>
-                      <text class="text-sm font-bold text-[var(--ej-text-primary)]">{{ i18n.quizPrompt }}</text>
+                  <view class="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-[var(--ej-bg-card)]/90 backdrop-blur-md border border-solid border-[var(--ej-border)] shadow-lg transition-transform active:scale-95">
+                      <view class="w-6 h-6 rounded-full flex-center bg-[var(--ej-color-brand-light)] text-[var(--ej-color-brand)] text-xs font-bold">
+                          ✨
+                      </view>
+                      <text class="text-[14px] font-bold tracking-wide text-[var(--ej-text-primary)]">{{ i18n.quizPrompt }}</text>
                   </view>
               </view>
           </view>

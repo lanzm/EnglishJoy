@@ -2,6 +2,11 @@
 import { ref, onMounted, onUnmounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
 import commonUtil from "@/utils/commonUtil";
 import { wordBooksData } from "@/utils/wordbooks";
+import { getTranslations, type Language } from "@/utils/i18n";
+import { getWordAnatomy, getUniquePos, getPosIcon } from "@/utils/anatomy";
+import SettingsDrawer from "@/components/SettingsDrawer.vue";
+import { useWordAudio } from "@/composables/useWordAudio";
+import { useFloatingGear } from "@/composables/useFloatingGear";
 import type { WordItem, WordBookMeta, WordAnatomy } from "@/types/word";
 
 const isDark = ref<'dark' | 'light'>('light')
@@ -13,10 +18,20 @@ const wordBook = ref<WordBookMeta | null>(null);
 const wordNum = ref(0);
 const knowFlag = ref(false); // Controls whether the translations are revealed
 const preventClick = ref(false);
-const playFlag = ref(false);
+const { playFlag, playWord, stopAudio } = useWordAudio();
 const ttsDisabled = ref(false);
 const loading = ref(false);
 const showDrawer = ref(false);
+const {
+    gearX,
+    gearY,
+    gearReady,
+    isHiding,
+    dockSide,
+    onGearChange,
+    onGearTouchStart,
+    onGearTouchEnd
+} = useFloatingGear(showDrawer);
 type DetailSectionKey = 'definitions' | 'examples' | 'anatomy';
 
 const createDefaultDetailSections = () => ({
@@ -28,81 +43,10 @@ const createDefaultDetailSections = () => ({
 const detailSections = ref<Record<DetailSectionKey, boolean>>(createDefaultDetailSections());
 const instance = getCurrentInstance();
 
-const lang = ref<'zh' | 'en'>('zh');
+const lang = ref<Language>('zh');
+const i18n = computed(() => getTranslations(lang.value));
 
-const i18n = computed(() => {
-    const isZh = lang.value === 'zh';
-    return {
-        // Main card states
-        quizPrompt: isZh ? '回想一下词义，点击卡片或下方按钮查看' : 'Recall the meaning. Tap card or buttons below to check',
-        knowBtn: isZh ? '认识' : 'Know',
-        dontKnowBtn: isZh ? '不认识' : 'Don\'t Know',
-        nextBtn: isZh ? '下一个' : 'Next',
-        addWordBtn: isZh ? '加入生词本' : 'Add to List',
-        loadingText: isZh ? '加载中...' : 'Loading...',
-        
-        // Card detail section headers
-        definitionsTitle: isZh ? '释义列表' : 'Definitions',
-        wordAnatomyTitle: isZh ? '词汇剖析' : 'Word Anatomy',
-        examplesTitle: isZh ? '应用例句' : 'Examples',
-        
-        // Word Anatomy titles
-        difficultyLabel: isZh ? '难度系数' : 'Difficulty',
-        syllablesLabel: isZh ? '音节估算' : 'Syllables',
-        suffixLabel: isZh ? '词尾构词法' : 'Word Affix',
-        lengthLabel: isZh ? '字母长度' : 'Word Length',
-        vowelsText: isZh ? '元音' : 'Vowels',
-        consonantsText: isZh ? '辅音' : 'Consonants',
-        lettersText: isZh ? '字母' : 'Letters',
-        syllablesCountText: (count: number) => isZh ? `${count} 音节` : `${count} Syls`,
-        
-        // Drawer main settings
-        settingsTitle: isZh ? '设置选项' : 'Settings',
-        currentBookLabel: isZh ? '当前词书' : 'Current Wordbook',
-        themeLabel: isZh ? '显示模式' : 'Display Mode',
-        ttsLabel: isZh ? '发音设置' : 'Pronunciation',
-        ttsTitle: isZh ? '单词发音' : 'Word Pronunciation',
-        ttsEnabledHint: isZh ? '自动播放和点击发音' : 'Auto-play and tap pronunciation',
-        ttsDisabledHint: isZh ? '已关闭，不请求在线发音' : 'Off. No online pronunciation request',
-        lightModeText: isZh ? '☀️ 明亮模式' : '☀️ Light Mode',
-        darkModeText: isZh ? '🌙 暗黑模式' : '🌙 Dark Mode',
-        wordListLabel: isZh ? '我的生词本' : 'My Word List',
-        savedWordsTitle: isZh ? '已收录生词' : 'Saved Vocabulary',
-        totalWordsCount: (count: number) => isZh ? `共 ${count} 个单词` : `${count} words collected`,
-        progressLabel: isZh ? '今日进度' : 'Session Progress',
-        progressCount: (count: number) => isZh ? `本次已背单词数：${count} 个` : `Words reviewed: ${count}`,
-        resetBtnText: isZh ? '重置进度' : 'Reset Progress',
-        
-        // Drawer word list management
-        backToSettings: isZh ? '返回设置' : 'Back to Settings',
-        emptyListPrompt: isZh ? '生词本空空如也，快去添加吧' : 'Word list is empty. Go add some!',
-        
-        // Alerts & Messages
-        firstWordAlert: isZh ? '已经是第一词了' : 'Already at the first word',
-        addedAlert: isZh ? '已添加到生词本' : 'Added to word list',
-        alreadyAddedAlert: isZh ? '已在生词本中' : 'Already in word list',
-        removedAlert: isZh ? '已从生词本移除' : 'Removed from word list',
-        resetAlert: isZh ? '进度已重置' : 'Progress reset successfully',
-        loadFailAlert: isZh ? '加载词书失败' : 'Failed to load wordbook',
-        
-        // Language Selector
-        langLabel: isZh ? '界面语言' : 'Language',
-        langZhText: '中文',
-        langEnText: 'English',
-        
-        // Additional formatting & dictionary lists
-        wordLengthText: (len: number, vowels: number, cons: number) => isZh ? `${len} 字母 (${vowels} 元音 / ${cons} 辅音)` : `${len} letters (${vowels} vowels / ${cons} consonants)`,
-        wordBookCountText: (count: number) => isZh ? `${count} 词` : `${count} words`,
-        wordBookLabels: {
-            'CET4luan_1': isZh ? '四级词汇' : 'CET-4 Vocab',
-            'CET6luan_1': isZh ? '六级词汇' : 'CET-6 Vocab',
-            'KaoYanluan_1': isZh ? '考研词汇' : 'Postgrad Vocab',
-            'IELTSluan_2': isZh ? '雅思词汇' : 'IELTS Vocab'
-        } as Record<string, string>
-    };
-});
-
-const setLang = (newLang: 'zh' | 'en') => {
+const setLang = (newLang: Language) => {
     lang.value = newLang;
     uni.setStorageSync('lang', newLang);
 };
@@ -112,7 +56,6 @@ const wordList = ref<WordItem[]>([]);
 
 // Custom Saved Word List state
 const savedWords = ref<WordItem[]>([]);
-const showSavedWordsList = ref(false);
 
 // Backing-history tracking list and index pointer for session
 const historyWords = ref<WordItem[]>([]);
@@ -153,16 +96,6 @@ const screenHeight = ref(800);
 
 // Card swipe transition state
 const cardTransitionClass = ref('');
-
-// Floating gear position refs & snap-to-edge state
-const gearX = ref(300);
-const gearY = ref(350);
-const lastDragX = ref(300);
-const lastDragY = ref(350);
-const gearReady = ref(false);
-const isHiding = ref(true); // Default to folded/docked state on load
-const dockSide = ref<'left' | 'right'>('right');
-let gearIntroTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Touch drag card state
 const startX = ref(0);
@@ -238,68 +171,9 @@ const syncBgCard = () => {
     bgKnowFlag.value = false;
 };
 
-const getWordAnatomy = (word: string): WordAnatomy => {
-    if (!word) return { syllables: 1, difficulty: 1, vowelsCount: 0, consonantsCount: 0 };
-    const lower = word.toLowerCase().trim();
-    
-    // 1. 计算音节数量 (辅音+元音组合的简易推算规则)
-    let syllables = 1;
-    if (lower.length > 3) {
-        let w = lower.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
-        w = w.replace(/^y/, '');
-        const syls = w.match(/[aeiouy]{1,2}/g);
-        syllables = syls ? syls.length : 1;
-    }
-    
-    // 2. 根据长度及当前选中的词书粗略计算难度等级 (1-5 星)
-    let difficulty = 2;
-    if (lower.length > 8) difficulty += 2;
-    else if (lower.length > 6) difficulty += 1;
-    
-    const currentBook = wordBook.value?.value || '';
-    if (currentBook.includes('IELTS')) {
-        difficulty += 1;
-    } else if (currentBook.includes('CET6') || currentBook.includes('KaoYan')) {
-        difficulty += 0.5;
-    }
-    difficulty = Math.min(Math.max(Math.round(difficulty), 1), 5);
-    
-    // 3. 常见词尾/派生后缀检测与语法角色说明
-    const isZh = lang.value === 'zh';
-    let suffixInfo: { suffix: string; meaning: string } | undefined;
-    if (lower.endsWith('tion')) {
-        suffixInfo = { suffix: '-tion', meaning: isZh ? '名词后缀，表示行为、状态或结果' : 'Noun suffix, indicating action, state, or result' };
-    } else if (lower.endsWith('ment')) {
-        suffixInfo = { suffix: '-ment', meaning: isZh ? '名词后缀，表示行为、手段或结果物' : 'Noun suffix, indicating action, means, or result' };
-    } else if (lower.endsWith('ness')) {
-        suffixInfo = { suffix: '-ness', meaning: isZh ? '名词后缀，加在形容词后表示性质或状态' : 'Noun suffix, added to adjectives indicating quality or state' };
-    } else if (lower.endsWith('ity')) {
-        suffixInfo = { suffix: '-ity', meaning: isZh ? '名词后缀，表示性质、状态或程度' : 'Noun suffix, indicating quality, state, or degree' };
-    } else if (lower.endsWith('tive')) {
-        suffixInfo = { suffix: '-tive', meaning: isZh ? '形容词后缀，表示有…倾向或属性的' : 'Adjective suffix, indicating tendency or quality' };
-    } else if (lower.endsWith('able')) {
-        suffixInfo = { suffix: '-able', meaning: isZh ? '形容词后缀，表示能够…的或值得…的' : 'Adjective suffix, indicating capability or worthiness' };
-    } else if (lower.endsWith('ful')) {
-        suffixInfo = { suffix: '-ful', meaning: isZh ? '形容词后缀，表示充满…的或具有…特性的' : 'Adjective suffix, indicating being full of or having qualities of' };
-    } else if (lower.endsWith('ous')) {
-        suffixInfo = { suffix: '-ous', meaning: isZh ? '形容词后缀，表示充满…的或具有…性质的' : 'Adjective suffix, indicating being full of or having properties of' };
-    } else if (lower.endsWith('ify')) {
-        suffixInfo = { suffix: '-ify', meaning: isZh ? '动词后缀，表示使…化、成为…' : 'Verb suffix, indicating making or becoming' };
-    } else if (lower.endsWith('ize')) {
-        suffixInfo = { suffix: '-ize', meaning: isZh ? '动词后缀，表示…化、照…方式对待' : 'Verb suffix, indicating making or acting in a certain way' };
-    } else if (lower.endsWith('ly') && lower.length > 4) {
-        suffixInfo = { suffix: '-ly', meaning: isZh ? '副词后缀，表示以…的方式或状态' : 'Adverb suffix, indicating manner or state' };
-    }
-    
-    const vowelsCount = lower.match(/[aeiouy]/g)?.length ?? 0;
-    const consonantsCount = Math.max(0, lower.length - vowelsCount);
-
-    return { syllables, difficulty, suffixInfo, vowelsCount, consonantsCount };
-};
-
 const currentWordAnatomy = computed(() => {
     const w = wordObj.value?.w ?? '';
-    const anatomy = getWordAnatomy(w);
+    const anatomy = getWordAnatomy(w, wordBook.value?.value, lang.value);
     return {
         ...anatomy,
         wordLength: w.length,
@@ -367,13 +241,13 @@ const updateNavBarColor = () => {
         uni.setNavigationBarColor({
             frontColor: '#ffffff',
             backgroundColor: '#09090B',
-            animation: { duration: 200 }
+            animation: { duration: 200, timingFunc: 'linear' }
         });
     } else {
         uni.setNavigationBarColor({
             frontColor: '#000000',
             backgroundColor: '#E9EEF4',
-            animation: { duration: 200 }
+            animation: { duration: 200, timingFunc: 'linear' }
         });
     }
 };
@@ -384,15 +258,12 @@ const setTheme = (theme: 'dark' | 'light') => {
     updateNavBarColor();
 };
 
-const toggleTheme = () => {
-    setTheme(isDark.value === 'dark' ? 'light' : 'dark');
-};
 
 const setTtsDisabled = (disabled: boolean) => {
     ttsDisabled.value = disabled;
     uni.setStorageSync('ttsDisabled', disabled);
     if (disabled) {
-        playFlag.value = false;
+        stopAudio();
     }
 };
 
@@ -410,7 +281,8 @@ const loadWordBook = () => {
     preloadedNextWord.value = null;
 
     setTimeout(() => {
-        const data = wordBooksData[wordBook.value.value];
+        const bookVal = wordBook.value?.value;
+        const data = bookVal ? wordBooksData[bookVal] : null;
         if (data && data.length > 0) {
             wordList.value = data;
             randomWord();
@@ -517,137 +389,8 @@ const nextWordDirectional = (dir: 'up' | 'down') => {
     }, 250);
 };
 
-let activeAudioContext: any = null;
-let speechRequestVersion = 0;
-
-const stopCurrentAudio = () => {
-    if (activeAudioContext) {
-        try {
-            activeAudioContext.stop();
-            activeAudioContext.destroy();
-        } catch (e) {
-            // ignore
-        }
-        activeAudioContext = null;
-    }
-    playFlag.value = false;
-};
-
-const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, requestVersion: number, onPlayEnd?: () => void) => {
-    if (requestVersion !== speechRequestVersion) {
-        return;
-    }
-    stopCurrentAudio();
-
-    const handleEnd = () => {
-        playFlag.value = false;
-        if (onPlayEnd) onPlayEnd();
-    };
-
-    if (typeof wx !== 'undefined' && wx.getFileSystemManager && wx.env && wx.env.USER_DATA_PATH) {
-        const fs = wx.getFileSystemManager();
-        const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_speech_${Date.now()}.mp3`;
-        
-        fs.writeFile({
-            filePath: tempFilePath,
-            data: data,
-            encoding: 'binary',
-            success: () => {
-                if (requestVersion !== speechRequestVersion) {
-                    fs.unlink({ filePath: tempFilePath, fail: () => {} });
-                    return;
-                }
-                const audioContext = uni.createInnerAudioContext();
-                activeAudioContext = audioContext;
-                audioContext.autoplay = true;
-                audioContext.src = tempFilePath;
-                audioContext.onPlay(() => {
-                    console.log(logMsg);
-                });
-                const cleanup = () => {
-                    fs.unlink({
-                        filePath: tempFilePath,
-                        fail: (err) => console.warn('删除临时音频文件失败:', err)
-                    });
-                    if (activeAudioContext === audioContext) {
-                        activeAudioContext = null;
-                    }
-                    audioContext.destroy();
-                    handleEnd();
-                };
-                audioContext.onEnded(cleanup);
-                audioContext.onError((err) => {
-                    console.error(logMsg + ' 播放失败:', err.errMsg, err.errCode);
-                    cleanup();
-                });
-            },
-            fail: (err) => {
-                console.error('写入临时音频文件失败:', err);
-                handleEnd();
-            }
-        });
-    } else {
-        // H5 fallback
-        const base64String = uni.arrayBufferToBase64(data);
-        const audioContext = uni.createInnerAudioContext({
-            useWebAudioImplement: true,
-        });
-        activeAudioContext = audioContext;
-        audioContext.autoplay = true;
-        audioContext.src = 'data:audio/mpeg;base64,' + base64String;
-        audioContext.onPlay(() => {
-            console.log(logMsg);
-        });
-        const cleanup = () => {
-            if (activeAudioContext === audioContext) {
-                activeAudioContext = null;
-            }
-            audioContext.destroy();
-            handleEnd();
-        };
-        audioContext.onEnded(cleanup);
-        audioContext.onError((err) => {
-            console.error(logMsg + ' 播放失败 (Base64):', err.errMsg, err.errCode);
-            cleanup();
-        });
-    }
-};
-
 const getSpeech = () => {
-    if (ttsDisabled.value) {
-        stopCurrentAudio();
-        return;
-    }
-    if (!wordObj.value?.w) return;
-    const currentWord = wordObj.value.w;
-    const thisVersion = ++speechRequestVersion;
-    stopCurrentAudio();
-    playFlag.value = true;
-
-    uni.request({
-        url: 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(currentWord) + '&type=1',
-        headers: {},
-        responseType: 'arraybuffer',
-        success: (res) => {
-            if (thisVersion !== speechRequestVersion || wordObj.value?.w !== currentWord) {
-                return;
-            }
-            if (res.statusCode !== 200) {
-                console.error('音频获取失败, 状态码:', res.statusCode);
-                playFlag.value = false;
-                return;
-            }
-            playArrayBufferAudio(res.data as ArrayBuffer, '播放单词 (有道)', thisVersion, () => {
-                playFlag.value = false;
-            });
-        },
-        fail: (err) => {
-            if (thisVersion === speechRequestVersion) {
-                console.error('音频获取失败:', err);
-                playFlag.value = false;
-            }
-        }
-    });
+    playWord(wordObj.value?.w, ttsDisabled.value);
 };
 
 const changeWordBook = (item: WordBookMeta) => {
@@ -660,28 +403,6 @@ const changeWordBook = (item: WordBookMeta) => {
 const resetProgress = () => {
     wordNum.value = 0;
     commonUtil.msg(i18n.value.resetAlert);
-};
-
-const getUniquePos = (trans: [string, string][] | undefined) => {
-    if (!trans) return [];
-    const posSet = new Set<string>();
-    trans.forEach(t => {
-        if (t[0]) {
-            let p = t[0].trim().replace(/\.$/, '');
-            if (p === 'n') p = 'noun';
-            else if (p === 'v' || p === 'vi' || p === 'vt') p = 'verb';
-            else if (p === 'adj') p = 'adj';
-            else if (p === 'adv') p = 'adv';
-            posSet.add(p);
-        }
-    });
-    return Array.from(posSet);
-};
-
-const getWordBookCount = (bookValue: string) => {
-    const matched = commonUtil.wordBookList.find(b => b.value === bookValue);
-    if (matched?.count) return matched.count;
-    return wordBooksData[bookValue]?.length || 0;
 };
 
 const updateDetailOverflow = () => {
@@ -710,14 +431,7 @@ const toggleDetailSection = (section: DetailSectionKey) => {
     updateDetailOverflow();
 };
 
-const getPosIcon = (pos: string) => {
-    const p = pos.toLowerCase();
-    if (p.includes('noun') || p === 'n') return '📝';
-    if (p.includes('verb') || p === 'v') return '⚡';
-    if (p.includes('adj')) return '✨';
-    if (p.includes('adv')) return '🚀';
-    return '●';
-};
+
 
 // Card touch drag event handlers
 const onCardTouchStart = (e: any) => {
@@ -835,104 +549,9 @@ const onDetailTouchEnd = () => {
     onCardTouchEnd();
 };
 
-const onGearChange = (e: any) => {
-    if (e.detail.source === 'touch') {
-        lastDragX.value = e.detail.x;
-        lastDragY.value = e.detail.y;
-        isHiding.value = false; // Reset opacity while dragging
-    }
-};
-
-const onGearTouchStart = () => {
-    if (gearIntroTimer) {
-        clearTimeout(gearIntroTimer);
-        gearIntroTimer = null;
-    }
-    isHiding.value = false;
-};
-
-const onGearTouchEnd = () => {
-    try {
-        const sys = uni.getSystemInfoSync();
-        const screenWidth = sys.windowWidth;
-        const gearWidth = 50;
-        const centerX = (screenWidth - gearWidth) / 2;
-        
-        // Snap to left or right screen edge dynamically within movable-area bounds
-        if (lastDragX.value < centerX) {
-            dockSide.value = 'left';
-            gearX.value = 0; // Snap to left edge of movable-area
-        } else {
-            dockSide.value = 'right';
-            gearX.value = screenWidth - gearWidth; // Snap to right edge of movable-area
-        }
-        
-        // Lock the Y position to its last dragged coordinate to prevent jumps
-        gearY.value = lastDragY.value;
-        isHiding.value = true;
-    } catch (e) {
-        console.error(e);
-    }
-};
-
-const initGearPosition = () => {
-    gearReady.value = false;
-    if (gearIntroTimer) {
-        clearTimeout(gearIntroTimer);
-        gearIntroTimer = null;
-    }
-    try {
-        const sys = uni.getSystemInfoSync();
-        const screenWidth = sys.windowWidth;
-        const gearWidth = 50;
-        const visibleRightGap = 16;
-        const visibleX = Math.max(screenWidth - gearWidth - visibleRightGap, 0);
-        const dockedX = screenWidth - gearWidth;
-
-        // Start fully visible so first-time users notice the settings entry, then dock it.
-        dockSide.value = 'right';
-        gearX.value = visibleX;
-        gearY.value = sys.windowHeight * 0.4;
-        lastDragX.value = visibleX;
-        lastDragY.value = sys.windowHeight * 0.4;
-        isHiding.value = false;
-
-        gearIntroTimer = setTimeout(() => {
-            if (!showDrawer.value) {
-                gearX.value = dockedX;
-                lastDragX.value = dockedX;
-                isHiding.value = true;
-            }
-            gearIntroTimer = null;
-        }, 1400);
-    } catch (e) {
-        gearX.value = 350;
-        gearY.value = 300;
-        isHiding.value = false;
-    }
-    nextTick(() => {
-        gearReady.value = true;
-    });
-};
-
 const handleGearClick = () => {
-    if (gearIntroTimer) {
-        clearTimeout(gearIntroTimer);
-        gearIntroTimer = null;
-    }
-    console.log('handleGearClick called: opening drawer settings.');
-    isHiding.value = false;
     showDrawer.value = true;
-    showSavedWordsList.value = false;
 };
-
-// Auto-dock the gear button back into the edge when settings drawer is closed
-watch(showDrawer, (newVal) => {
-    console.log('showDrawer changed to:', newVal);
-    if (!newVal) {
-        isHiding.value = true;
-    }
-});
 
 const onDetailScroll = (e: any) => {
     detailScrollTop.value = e.detail?.scrollTop || 0;
@@ -971,7 +590,6 @@ const initData = () => {
 
     // Explicitly reset drawer states on initialization to prevent simulator cache issues
     showDrawer.value = false;
-    showSavedWordsList.value = false;
 
     const savedTheme = uni.getStorageSync('theme');
     if (savedTheme === 'dark' || savedTheme === 'light') {
@@ -988,7 +606,6 @@ const initData = () => {
     ttsDisabled.value = savedTtsDisabled === true || savedTtsDisabled === 'true';
     updateNavBarColor();
     loadSavedWords();
-    initGearPosition();
 
     wordBook.value = commonUtil.getCurrWordBook();
     loadWordBook();
@@ -999,11 +616,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    if (gearIntroTimer) {
-        clearTimeout(gearIntroTimer);
-        gearIntroTimer = null;
-    }
-    stopCurrentAudio();
+    stopAudio();
 });
 </script>
 
@@ -1296,199 +909,48 @@ onUnmounted(() => {
 
       <!-- Draggable floating gear settings button that snaps to edge and auto-hides -->
       <movable-view
-          v-if="gearReady"
-          class="floating-gear" 
-          direction="all" 
-          :x="gearX" 
-          :y="gearY"
-          :animation="true"
-          @change="onGearChange"
-          @touchstart="onGearTouchStart"
-          @touchend="onGearTouchEnd"
+        v-if="gearReady"
+        class="floating-gear" 
+        direction="all" 
+        :x="gearX" 
+        :y="gearY"
+        :animation="true"
+        @change="onGearChange"
+        @touchstart="onGearTouchStart"
+        @touchend="onGearTouchEnd"
       >
-          <view 
+        <view 
             class="gear-btn flex-center" 
             :class="{ 
-              'gear-hidden': isHiding,
-              'dock-left': isHiding && dockSide === 'left',
-              'dock-right': isHiding && dockSide === 'right'
+                'gear-hidden': isHiding,
+                'dock-left': isHiding && dockSide === 'left',
+                'dock-right': isHiding && dockSide === 'right'
             }"
             @click="handleGearClick"
-          >
-              <text class="gear-icon">⚙</text>
-          </view>
+        >
+            <text class="gear-icon">⚙</text>
+        </view>
       </movable-view>
 
-      <!-- Settings Drawer Overlay -->
-      <view 
-        class="drawer-overlay" 
-        :class="{ 'show': showDrawer }" 
-        @click="showDrawer = false"
-      ></view>
-      
-      <!-- Settings Drawer Panel -->
-      <view class="drawer-panel" :class="{ 'show': showDrawer }">
-          <!-- Main Settings View -->
-          <view v-if="!showSavedWordsList" class="drawer-view-container">
-              <view class="drawer-header">
-                  <text class="drawer-title">{{ i18n.settingsTitle }}</text>
-                  <view class="drawer-close-btn" @click="showDrawer = false">✕</view>
-              </view>
-               
-              <scroll-view scroll-y="true" class="drawer-scroll-view">
-                  <view class="drawer-scroll-content">
-                      <!-- Option 1: Wordbook Select -->
-                      <view class="drawer-section">
-                          <text class="section-label">{{ i18n.currentBookLabel }}</text>
-                          <view class="book-grid">
-                              <view 
-                                v-for="item in commonUtil.wordBookList" 
-                                :key="item.value"
-                                class="book-card"
-                                :class="{ 'active': wordBook?.value === item.value }"
-                                @click="changeWordBook(item)"
-                              >
-                                  <text class="book-card-name">{{ i18n.wordBookLabels[item.value] || item.label }}</text>
-                                  <text class="book-card-count">{{ i18n.wordBookCountText(getWordBookCount(item.value)) }}</text>
-                              </view>
-                          </view>
-                      </view>
-                      
-                      <!-- Option 2: Theme Toggle -->
-                      <view class="drawer-section">
-                          <text class="section-label">{{ i18n.themeLabel }}</text>
-                          <view class="theme-switch-container">
-                              <view 
-                                class="theme-switch-option"
-                                :class="{ 'active': isDark === 'light' }"
-                                @click="setTheme('light')"
-                              >
-                                  {{ i18n.lightModeText }}
-                              </view>
-                              <view 
-                                class="theme-switch-option"
-                                :class="{ 'active': isDark === 'dark' }"
-                                @click="setTheme('dark')"
-                              >
-                                  {{ i18n.darkModeText }}
-                              </view>
-                          </view>
-                      </view>
-
-                      <!-- Option 2.5: Language Toggle -->
-                      <view class="drawer-section">
-                          <text class="section-label">{{ i18n.langLabel }}</text>
-                          <view class="theme-switch-container">
-                              <view 
-                                class="theme-switch-option"
-                                :class="{ 'active': lang === 'zh' }"
-                                @click="setLang('zh')"
-                              >
-                                  <view class="lang-switch-item">
-                                      <text class="lang-badge">文</text>
-                                      <text class="lang-text">中文</text>
-                                  </view>
-                              </view>
-                              <view 
-                                class="theme-switch-option"
-                                :class="{ 'active': lang === 'en' }"
-                                @click="setLang('en')"
-                              >
-                                  <view class="lang-switch-item">
-                                      <text class="lang-badge">A</text>
-                                      <text class="lang-text">English</text>
-                                  </view>
-                              </view>
-                          </view>
-                      </view>
-
-                      <!-- Option 2.6: TTS Toggle -->
-                      <view class="drawer-section">
-                          <text class="section-label">{{ i18n.ttsLabel }}</text>
-                          <view class="tts-toggle-card">
-                              <view class="tts-toggle-info">
-                                  <text class="tts-toggle-title">{{ i18n.ttsTitle }}</text>
-                                  <text class="tts-toggle-desc">{{ ttsDisabled ? i18n.ttsDisabledHint : i18n.ttsEnabledHint }}</text>
-                              </view>
-                              <switch
-                                :checked="!ttsDisabled"
-                                color="#2563EB"
-                                @change="setTtsEnabled($event.detail.value)"
-                              />
-                          </view>
-                      </view>
-
-                      <!-- Option 3: Word List -->
-                      <view class="drawer-section">
-                          <text class="section-label">{{ i18n.wordListLabel }}</text>
-                          <view class="word-list-entry-card" @click="showSavedWordsList = true; loadSavedWords()">
-                              <view class="entry-card-left">
-                                   <text class="entry-card-icon">📁</text>
-                                   <view class="entry-card-info">
-                                       <text class="entry-card-title">{{ i18n.savedWordsTitle }}</text>
-                                       <text class="entry-card-subtitle">{{ i18n.totalWordsCount(savedWords.length) }}</text>
-                                   </view>
-                              </view>
-                              <text class="entry-card-arrow">→</text>
-                          </view>
-                      </view>
-
-                      <!-- Option 4: Session progress info -->
-                      <view class="drawer-section">
-                          <text class="section-label">{{ i18n.progressLabel }}</text>
-                          <view class="progress-details">
-                              <text class="progress-info-text">{{ i18n.progressCount(wordNum) }}</text>
-                              <view class="reset-progress-btn" @click="resetProgress()">{{ i18n.resetBtnText }}</view>
-                          </view>
-                      </view>
-                  </view>
-              </scroll-view>
-          </view>
-
-          <!-- Word List Management View -->
-          <view v-else class="drawer-view-container">
-              <view class="drawer-header">
-                  <view class="drawer-header-left" @click="showSavedWordsList = false">
-                      <text class="drawer-back-arrow">←</text>
-                      <text class="drawer-title-sub">{{ i18n.backToSettings }}</text>
-                  </view>
-                  <text class="drawer-title">{{ i18n.wordListLabel }} ({{ savedWords.length }})</text>
-                  <view class="drawer-close-btn" @click="showDrawer = false">✕</view>
-              </view>
-
-              <view class="drawer-content">
-                  <scroll-view scroll-y="true" class="drawer-scroll-view">
-                      <view class="drawer-scroll-content">
-                          <view v-if="savedWords.length === 0" class="drawer-empty-state">
-                              <text class="drawer-empty-icon">📂</text>
-                              <text class="drawer-empty-text">{{ i18n.emptyListPrompt }}</text>
-                          </view>
-                          <view v-else class="saved-words-list">
-                              <view 
-                                v-for="word in savedWords" 
-                                :key="word.w" 
-                                class="saved-word-item"
-                                @click="viewSavedWord(word)"
-                              >
-                                  <view class="saved-word-info-col">
-                                      <view class="saved-word-header-row">
-                                          <text class="saved-word-name">{{ word.w }}</text>
-                                          <text class="saved-word-phonetic">/{{ word.p }}/</text>
-                                      </view>
-                                      <text class="saved-word-translation">
-                                          {{ word.t && word.t[0] ? `(${word.t[0][0]}) ${word.t[0][1]}` : '' }}
-                                      </text>
-                                  </view>
-                                  <view class="saved-word-delete-btn" @click.stop="removeFromWordList(word.w)">
-                                      <text class="delete-icon-cross">✕</text>
-                                  </view>
-                              </view>
-                          </view>
-                      </view>
-                  </scroll-view>
-              </view>
-          </view>
-      </view>
+      <!-- Settings Drawer Component -->
+      <SettingsDrawer
+        v-model:show="showDrawer"
+        :is-dark="isDark"
+        :lang="lang"
+        :tts-disabled="ttsDisabled"
+        :current-book-value="wordBook?.value || ''"
+        :saved-words="savedWords"
+        :word-num="wordNum"
+        :i18n="i18n"
+        :word-book-list="commonUtil.wordBookList"
+        @change-book="changeWordBook"
+        @change-theme="setTheme"
+        @change-lang="setLang"
+        @change-tts="setTtsEnabled"
+        @reset-progress="resetProgress"
+        @view-saved-word="viewSavedWord"
+        @remove-saved-word="removeFromWordList"
+      />
 
   </movable-area>
 </template>
@@ -1695,55 +1157,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     overflow: hidden;
 }
 
-/* Draggable settings gear view */
-.floating-gear {
-    width: 50px;
-    height: 50px;
-    z-index: 999;
-}
 
-.gear-btn {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    box-shadow: 0 6px 16px rgba(100, 116, 139, 0.2);
-    cursor: pointer;
-    transition: opacity 0.3s, transform 0.3s, background-color 0.2s;
-    opacity: 0.9;
-}
-.dark .gear-btn {
-    background-color: #27272A;
-    border-color: #3F3F46;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-}
-
-/* Edge-docked and folded/partially hidden state */
-.gear-btn.gear-hidden {
-    opacity: 0.35; /* Translucent when docked */
-}
-
-.gear-btn.dock-left {
-    transform: translate3d(-25px, 0, 0) !important;
-}
-
-.gear-btn.dock-right {
-    transform: translate3d(25px, 0, 0) !important;
-}
-
-.gear-btn:active {
-    transform: scale(0.92);
-    opacity: 1 !important;
-}
-
-.gear-icon {
-    font-size: 24px;
-    color: #64748B;
-}
-.dark .gear-icon {
-    color: #A1A1AA;
-}
 
 /* Word Info Top Section */
 .word-card-top {
@@ -2479,532 +1893,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     background-color: #27272A;
 }
 
-/* Drawer styles */
-.drawer-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 1000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-}
-.drawer-overlay.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.drawer-panel {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 70vh; /* Fixed relative height to screen */
-    background-color: #FFFFFF;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    z-index: 1001;
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s, color 0.3s;
-    box-sizing: border-box;
-    padding: 20px 16px calc(16px + env(safe-area-inset-bottom)) 16px;
-    color: #0F172A;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-.dark .drawer-panel {
-    background-color: #18181B;
-    color: #F4F4F5;
-}
-.drawer-panel.show {
-    transform: translateY(0);
-}
- 
-.drawer-view-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
- 
-.drawer-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
- 
-.drawer-header-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
- 
-.drawer-back-arrow {
-    font-size: 18px;
-    font-weight: bold;
-    color: #2563EB;
-}
- 
-.drawer-title-sub {
-    font-size: 14px;
-    font-weight: 600;
-    color: #2563EB;
-}
- 
-.drawer-title {
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-}
- 
-.drawer-close-btn {
-    font-size: 20px;
-    color: #94A3B8;
-    cursor: pointer;
-    padding: 4px;
-}
-
-.drawer-row-container {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.drawer-col-half {
-    flex: 1;
-}
- 
-.drawer-section {
-    margin-bottom: 16px;
-}
-
-.section-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 700;
-    color: #64748B;
-    margin-bottom: 8px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
-.dark .section-label {
-    color: #A1A1AA;
-}
-
-.tts-toggle-card {
-    min-height: 58px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #E2E8F0;
-    background-color: #F8FAFC;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    box-sizing: border-box;
-}
-
-.dark .tts-toggle-card {
-    background-color: #27272A;
-    border-color: #3F3F46;
-}
-
-.tts-toggle-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
-.tts-toggle-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #0F172A;
-}
-
-.dark .tts-toggle-title {
-    color: #F4F4F5;
-}
-
-.tts-toggle-desc {
-    font-size: 12px;
-    line-height: 1.35;
-    color: #64748B;
-}
-
-.dark .tts-toggle-desc {
-    color: #A1A1AA;
-}
-
-.book-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-}
-
-.book-card {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border-radius: 12px;
-    padding: 12px;
-    border: 1px solid #E2E8F0;
-    background-color: #F8FAFC;
-    text-align: center;
-    transition: all 0.2s;
-}
-.dark .book-card {
-    background-color: #27272A;
-    border-color: #3F3F46;
-}
-.book-card.active {
-    border-color: #2563EB;
-    background-color: rgba(37, 99, 235, 0.06);
-    color: #2563EB;
-    font-weight: bold;
-}
-.dark .book-card.active {
-    border-color: #3B82F6;
-    background-color: rgba(59, 130, 246, 0.1);
-    color: #3B82F6;
-}
-
-.book-card-name {
-    font-size: 14px;
-    text-align: center;
-}
-
-.book-card-count {
-    font-size: 11px;
-    font-weight: 600;
-    text-align: center;
-    color: #64748B;
-}
-
-.dark .book-card-count {
-    color: #A1A1AA;
-}
-
-.book-card.active .book-card-count {
-    color: #2563EB;
-}
-
-.dark .book-card.active .book-card-count {
-    color: #3B82F6;
-}
-
-.theme-switch-container {
-    display: flex;
-    border-radius: 12px;
-    border: 1px solid #E2E8F0;
-    overflow: hidden;
-    background-color: #F8FAFC;
-}
-.dark .theme-switch-container {
-    border-color: #3F3F46;
-    background-color: #27272A;
-}
-
-.theme-switch-option {
-    flex: 1;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s;
-    color: #64748B;
-}
-.dark .theme-switch-option {
-    color: #A1A1AA;
-}
-.theme-switch-option.active {
-    background-color: #FFFFFF;
-    color: #2563EB;
-    font-weight: bold;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-.dark .theme-switch-option.active {
-    background-color: #18181B;
-    color: #3B82F6;
-}
-
-.lang-switch-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 100%;
-    width: 100%;
-}
-
-.lang-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 800;
-    background-color: #E2E8F0;
-    color: #64748B;
-    line-height: 1;
-    transition: all 0.2s;
-}
-.dark .lang-badge {
-    background-color: #3F3F46;
-    color: #A1A1AA;
-}
-
-.theme-switch-option.active .lang-badge {
-    background-color: #2563EB;
-    color: #FFFFFF;
-}
-.dark .theme-switch-option.active .lang-badge {
-    background-color: #3B82F6;
-    color: #18181B;
-}
-
-.lang-text {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-/* Word list entry card inside drawer settings */
-.word-list-entry-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #F8FAFC;
-    padding: 14px;
-    border-radius: 12px;
-    border: 1px solid #E2E8F0;
-    transition: all 0.2s;
-}
-.dark .word-list-entry-card {
-    background-color: #27272A;
-    border-color: #3F3F46;
-}
-.word-list-entry-card:active {
-    opacity: 0.8;
-}
-
-.entry-card-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.entry-card-icon {
-    font-size: 22px;
-}
-
-.entry-card-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.entry-card-title {
-    font-size: 14px;
-    font-weight: 700;
-}
-.light .entry-card-title {
-    color: #0F172A;
-}
-.dark .entry-card-title {
-    color: #FAFAFA;
-}
-
-.entry-card-subtitle {
-    font-size: 12px;
-    color: #64748B;
-    margin-top: 2px;
-}
-.dark .entry-card-subtitle {
-    color: #94A3B8;
-}
-
-.entry-card-arrow {
-    font-size: 16px;
-    font-weight: bold;
-    color: #64748B;
-}
-.dark .entry-card-arrow {
-    color: #94A3B8;
-}
-
-.progress-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #F8FAFC;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid #E2E8F0;
-}
-.dark .progress-details {
-    background-color: #27272A;
-    border-color: #3F3F46;
-}
-
-.progress-info-text {
-    font-size: 14px;
-}
-
-.reset-progress-btn {
-    font-size: 12px;
-    font-weight: bold;
-    color: #EF4444;
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid #FCA5A5;
-    background-color: #FEF2F2;
-}
-.dark .reset-progress-btn {
-    background-color: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.4);
-}
-.reset-progress-btn:active {
-    opacity: 0.8;
-}
-
-/* Word List Drawer Scroll View */
-.drawer-scroll-view {
-    flex: 1;
-    min-height: 0;
-    height: 100%;
-}
-
-.drawer-scroll-content {
-    padding-right: 12px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.drawer-empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 0;
-    gap: 12px;
-}
-
-.drawer-empty-icon {
-    font-size: 32px;
-    opacity: 0.5;
-}
-
-.drawer-empty-text {
-    font-size: 13.5px;
-    color: #64748B;
-}
-.dark .drawer-empty-text {
-    color: #94A3B8;
-}
-
-.saved-words-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-bottom: 20px;
-}
-
-.saved-word-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 12px;
-    transition: all 0.2s;
-}
-.dark .saved-word-item {
-    background-color: #27272A;
-    border-color: #3F3F46;
-}
-.saved-word-item:active {
-    opacity: 0.85;
-}
-
-.saved-word-info-col {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    padding-right: 12px;
-}
-
-.saved-word-header-row {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-}
-
-.saved-word-name {
-    font-size: 16px;
-    font-weight: 700;
-}
-.light .saved-word-name {
-    color: #0F172A;
-}
-.dark .saved-word-name {
-    color: #FFFFFF;
-}
-
-.saved-word-phonetic {
-    font-size: 12.5px;
-    color: #64748B;
-    font-family: monospace;
-}
-.dark .saved-word-phonetic {
-    color: #94A3B8;
-}
-
-.saved-word-translation {
-    font-size: 13px;
-    color: #475569;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.dark .saved-word-translation {
-    color: #A1A1AA;
-}
-
-.saved-word-delete-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    flex-shrink: 0;
-}
-.dark .saved-word-delete-btn {
-    background-color: #18181B;
-    border-color: #3F3F46;
-}
-.saved-word-delete-btn:active {
-    transform: scale(0.9);
-}
-
-.delete-icon-cross {
-    font-size: 12px;
-    color: #EF4444;
-}
-
 @keyframes speaker-pulse {
     0%, 100% {
         transform: scale(1);
@@ -3035,6 +1923,57 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+}
+
+/* Draggable settings gear view */
+.floating-gear {
+    width: 50px;
+    height: 50px;
+    z-index: 999;
+}
+
+.gear-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 6px 16px rgba(100, 116, 139, 0.2);
+    cursor: pointer;
+    transition: opacity 0.3s, transform 0.3s, background-color 0.2s;
+    opacity: 0.9;
+}
+
+.dark .gear-btn {
+    background-color: #27272A;
+    border-color: #3F3F46;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.gear-btn.gear-hidden {
+    opacity: 0.35;
+}
+
+.gear-btn.dock-left {
+    transform: translate3d(-25px, 0, 0) !important;
+}
+
+.gear-btn.dock-right {
+    transform: translate3d(25px, 0, 0) !important;
+}
+
+.gear-btn:active {
+    transform: scale(0.92);
+    opacity: 1 !important;
+}
+
+.gear-icon {
+    font-size: 24px;
+    color: #64748B;
+}
+
+.dark .gear-icon {
+    color: #A1A1AA;
 }
 
 </style>

@@ -1,0 +1,156 @@
+import { ref, onUnmounted } from 'vue';
+
+declare const wx: any;
+
+/**
+ * Composable for managing word speech audio playback across MP-Weixin and H5 platforms.
+ * Handles request versioning to prevent race conditions, temporary file management on WeChat,
+ * Base64 fallback on H5, and audio instance lifecycle management.
+ */
+export function useWordAudio() {
+    const playFlag = ref(false);
+    let activeAudioContext: UniApp.InnerAudioContext | any = null;
+    let speechRequestVersion = 0;
+
+    const stopAudio = () => {
+        if (activeAudioContext) {
+            try {
+                activeAudioContext.stop();
+                activeAudioContext.destroy();
+            } catch (e) {
+                // ignore
+            }
+            activeAudioContext = null;
+        }
+        playFlag.value = false;
+    };
+
+    const playArrayBufferAudio = (data: ArrayBuffer, logMsg: string, requestVersion: number, onPlayEnd?: () => void) => {
+        if (requestVersion !== speechRequestVersion) {
+            return;
+        }
+        stopAudio();
+
+        const handleEnd = () => {
+            playFlag.value = false;
+            if (onPlayEnd) onPlayEnd();
+        };
+
+        // WeChat Mini Program File System
+        if (typeof wx !== 'undefined' && wx.getFileSystemManager && wx.env && wx.env.USER_DATA_PATH) {
+            const fs = wx.getFileSystemManager();
+            const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_speech_${Date.now()}.mp3`;
+
+            fs.writeFile({
+                filePath: tempFilePath,
+                data: data,
+                encoding: 'binary',
+                success: () => {
+                    if (requestVersion !== speechRequestVersion) {
+                        fs.unlink({ filePath: tempFilePath, fail: () => {} });
+                        return;
+                    }
+                    const audioContext = uni.createInnerAudioContext();
+                    activeAudioContext = audioContext;
+                    audioContext.autoplay = true;
+                    audioContext.src = tempFilePath;
+                    audioContext.onPlay(() => {
+                        console.log(logMsg);
+                    });
+                    const cleanup = () => {
+                        fs.unlink({
+                            filePath: tempFilePath,
+                            fail: (err: any) => console.warn('删除临时音频文件失败:', err)
+                        });
+                        if (activeAudioContext === audioContext) {
+                            activeAudioContext = null;
+                        }
+                        audioContext.destroy();
+                        handleEnd();
+                    };
+                    audioContext.onEnded(cleanup);
+                    audioContext.onError((err) => {
+                        console.error(logMsg + ' 播放失败:', err.errMsg, err.errCode);
+                        cleanup();
+                    });
+                },
+                fail: (err: any) => {
+                    console.error('写入临时音频文件失败:', err);
+                    handleEnd();
+                }
+            });
+        } else {
+            // H5 fallback via Base64
+            const base64String = uni.arrayBufferToBase64(data);
+            const audioContext = (uni as any).createInnerAudioContext({
+                useWebAudioImplement: true,
+            });
+            activeAudioContext = audioContext;
+            audioContext.autoplay = true;
+            audioContext.src = 'data:audio/mpeg;base64,' + base64String;
+            audioContext.onPlay(() => {
+                console.log(logMsg);
+            });
+            const cleanup = () => {
+                if (activeAudioContext === audioContext) {
+                    activeAudioContext = null;
+                }
+                audioContext.destroy();
+                handleEnd();
+            };
+            audioContext.onEnded(cleanup);
+            audioContext.onError((err: any) => {
+                console.error(logMsg + ' 播放失败 (Base64):', err.errMsg, err.errCode);
+                cleanup();
+            });
+        }
+    };
+
+    const playWord = (word?: string, ttsDisabled = false) => {
+        if (ttsDisabled) {
+            stopAudio();
+            return;
+        }
+        if (!word) return;
+
+        const currentWord = word;
+        const thisVersion = ++speechRequestVersion;
+        stopAudio();
+        playFlag.value = true;
+
+        uni.request({
+            url: 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(currentWord) + '&type=1',
+            headers: {},
+            responseType: 'arraybuffer',
+            success: (res) => {
+                if (thisVersion !== speechRequestVersion) {
+                    return;
+                }
+                if (res.statusCode !== 200) {
+                    console.error('音频获取失败, 状态码:', res.statusCode);
+                    playFlag.value = false;
+                    return;
+                }
+                playArrayBufferAudio(res.data as ArrayBuffer, '播放单词 (有道)', thisVersion, () => {
+                    playFlag.value = false;
+                });
+            },
+            fail: (err) => {
+                if (thisVersion === speechRequestVersion) {
+                    console.error('音频获取失败:', err);
+                    playFlag.value = false;
+                }
+            }
+        });
+    };
+
+    onUnmounted(() => {
+        stopAudio();
+    });
+
+    return {
+        playFlag,
+        playWord,
+        stopAudio
+    };
+}

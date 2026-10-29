@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted, computed, watch, nextTick, getCurrentInsta
 import commonUtil from "@/utils/commonUtil";
 import { wordBooksData } from "@/utils/wordbooks";
 import { getTranslations, type Language } from "@/utils/i18n";
-import { getWordAnatomy, getUniquePos, getPosIcon } from "@/utils/anatomy";
+import { getWordAnatomy, getUniquePos, getPosIcon, formatDefinitionPos, formatDefinitionContent } from "@/utils/anatomy";
 import SettingsDrawer from "@/components/SettingsDrawer.vue";
 import { useWordAudio } from "@/composables/useWordAudio";
 import { useFloatingGear } from "@/composables/useFloatingGear";
@@ -629,8 +629,10 @@ onUnmounted(() => {
                             :key="index" 
                             class="flex flex-col gap-0.5"
                           >
-                              <text class="item-number-prefix">{{ index + 1 }}. ({{ item[0].replace(/\.$/, '') }})</text>
-                              <text class="item-definition-content">{{ item[1] }}</text>
+                              <text class="item-number-prefix">
+                                  {{ index + 1 }}.<template v-if="formatDefinitionPos(item[0])"> ({{ formatDefinitionPos(item[0]) }})</template>
+                              </text>
+                              <text class="item-definition-content">{{ formatDefinitionContent(item) }}</text>
                           </view>
                       </view>
                   </view>
@@ -641,11 +643,11 @@ onUnmounted(() => {
                 v-if="!bgKnowFlag"
                 class="absolute inset-0 flex-col-center z-20 pointer-events-none"
               >
-                  <view class="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-[var(--ej-bg-card)]/90 backdrop-blur-md border border-solid border-[var(--ej-border)] shadow-lg">
-                      <view class="w-6 h-6 rounded-full flex-center bg-[var(--ej-color-brand-light)] text-[var(--ej-color-brand)] text-xs font-bold">
-                          ✨
+                  <view class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--ej-bg-card)]/95 backdrop-blur-md border border-solid border-[var(--ej-border)] shadow-md">
+                      <view class="w-6 h-6 rounded-full flex-center bg-[var(--ej-color-brand-light)] text-[13px]">
+                          💡
                       </view>
-                      <text class="text-[14px] font-bold tracking-wide text-[var(--ej-text-primary)]">{{ i18n.quizPrompt }}</text>
+                      <text class="text-[13px] font-semibold tracking-wide text-[var(--ej-color-brand)]">{{ i18n.quizPrompt }}</text>
                   </view>
               </view>
           </view>
@@ -750,8 +752,10 @@ onUnmounted(() => {
                                 :key="index"
                                 class="flex flex-col gap-0.5"
                               >
-                                  <text class="item-number-prefix">{{ index + 1 }}. ({{ item[0].replace(/\.$/, '') }})</text>
-                                  <text class="item-definition-content">{{ item[1] }}</text>
+                                  <text class="item-number-prefix">
+                                      {{ index + 1 }}.<template v-if="formatDefinitionPos(item[0])"> ({{ formatDefinitionPos(item[0]) }})</template>
+                                  </text>
+                                  <text class="item-definition-content">{{ formatDefinitionContent(item) }}</text>
                               </view>
                               </view>
                           </view>
@@ -825,11 +829,11 @@ onUnmounted(() => {
                 @touchmove="onCardTouchMove"
                 @touchend="onCardTouchEnd"
               >
-                  <view class="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-[var(--ej-bg-card)]/90 backdrop-blur-md border border-solid border-[var(--ej-border)] shadow-lg transition-transform active:scale-95">
-                      <view class="w-6 h-6 rounded-full flex-center bg-[var(--ej-color-brand-light)] text-[var(--ej-color-brand)] text-xs font-bold">
-                          ✨
+                  <view class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--ej-bg-card)]/95 backdrop-blur-md border border-solid border-[var(--ej-border)] shadow-md transition-transform active:scale-95">
+                      <view class="w-6 h-6 rounded-full flex-center bg-[var(--ej-color-brand-light)] text-[13px]">
+                          💡
                       </view>
-                      <text class="text-[14px] font-bold tracking-wide text-[var(--ej-text-primary)]">{{ i18n.quizPrompt }}</text>
+                      <text class="text-[13px] font-semibold tracking-wide text-[var(--ej-color-brand)]">{{ i18n.quizPrompt }}</text>
                   </view>
               </view>
           </view>

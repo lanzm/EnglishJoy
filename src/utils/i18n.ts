@@ -60,7 +60,7 @@ export const getTranslations = (lang: Language): Translations => {
     const isZh = lang === 'zh';
     return {
         // Main card states
-        quizPrompt: isZh ? '回想一下词义，点击卡片或下方按钮查看' : 'Recall the meaning. Tap card or buttons below to check',
+        quizPrompt: isZh ? '点击卡片揭晓释义' : 'Tap card to reveal details',
         knowBtn: isZh ? '认识' : 'Know',
         dontKnowBtn: isZh ? '不认识' : 'Don\'t Know',
         nextBtn: isZh ? '下一个' : 'Next',

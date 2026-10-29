@@ -609,10 +609,13 @@ onUnmounted(() => {
 
           <!-- Scrollable details container (Static mock) -->
           <view 
-            v-if="bgKnowFlag && bgWordObj" 
-            class="card-scroll-view flex-1 overflow-hidden"
+            v-if="bgWordObj" 
+            class="relative card-scroll-view flex-1 overflow-hidden"
           >
-              <view class="pr-3 box-border w-full">
+              <view 
+                class="pr-3 box-border w-full transition-all duration-300"
+                :class="{ 'filter blur-[7px] select-none opacity-60 pointer-events-none': !bgKnowFlag }"
+              >
                   <!-- Definitions -->
                   <view class="mb-3">
                       <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
@@ -624,18 +627,21 @@ onUnmounted(() => {
                           >
                               <text class="item-number-prefix">{{ index + 1 }}. ({{ item[0].replace(/\.$/, '') }})</text>
                               <text class="item-definition-content">{{ item[1] }}</text>
-                              </view>
                           </view>
                       </view>
+                  </view>
               </view>
-          </view>
 
-          <!-- Quiz card face (Static mock) -->
-          <view v-else class="flex-1 flex-col-center gap-4 cursor-pointer">
-              <view class="question-mark-circle">
-                  <text class="question-mark">?</text>
+              <!-- Frosted Peek Tap Overlay Mock -->
+              <view
+                v-if="!bgKnowFlag"
+                class="absolute inset-0 flex-col-center z-20 pointer-events-none"
+              >
+                  <view class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--ej-bg-card)] border border-solid border-[var(--ej-border)] shadow-md">
+                      <text class="text-base">👁️</text>
+                      <text class="text-sm font-bold text-[var(--ej-text-primary)]">{{ i18n.quizPrompt }}</text>
+                  </view>
               </view>
-              <text class="empty-state-text">{{ i18n.quizPrompt }}</text>
           </view>
 
           <!-- Footer Buttons (Static mock) -->
@@ -707,16 +713,18 @@ onUnmounted(() => {
           <!-- Divider -->
           <view v-if="wordObj && !loading" class="card-divider shrink-0"></view>
 
-          <!-- Scrollable details container (Flex-1) - Shown when definitions are revealed -->
+          <!-- Details container with Option 3 frosted peek mask -->
           <view
-            v-if="knowFlag && wordObj && !loading"
+            v-if="wordObj && !loading"
             :key="'detail-' + wordObj.w"
-            class="flex flex-1 w-full min-h-0 box-border"
+            class="relative flex flex-1 w-full min-h-0 box-border overflow-hidden"
           >
+              <!-- Scrollable details list -->
               <scroll-view
                 scroll-y="true"
                 :scroll-top="scrollTop"
-                class="card-scroll-view w-full h-full min-w-0 flex-1"
+                class="card-scroll-view w-full h-full min-w-0 flex-1 transition-all duration-300"
+                :class="{ 'filter blur-[7px] select-none opacity-60 pointer-events-none': !knowFlag }"
                 @scroll="onDetailScroll"
                 @touchstart="onDetailTouchStart"
                 @touchmove="onDetailTouchMove"
@@ -801,21 +809,21 @@ onUnmounted(() => {
                       </view>
                   </view>
               </scroll-view>
-          </view>
 
-          <!-- If definitions are not shown, show a clean, centered quiz card face (Tapping reveals translation) -->
-          <view
-            v-if="!knowFlag && wordObj && !loading"
-            class="flex-1 flex-col-center gap-4 cursor-pointer" 
-            @click="handleCardTap"
-            @touchstart="onCardTouchStart"
-            @touchmove="onCardTouchMove"
-            @touchend="onCardTouchEnd"
-          >
-              <view class="question-mark-circle">
-                  <text class="question-mark">?</text>
+              <!-- Frosted Peek Tap Overlay -->
+              <view
+                v-if="!knowFlag"
+                class="absolute inset-0 flex-col-center z-20 cursor-pointer"
+                @click="handleCardTap"
+                @touchstart="onCardTouchStart"
+                @touchmove="onCardTouchMove"
+                @touchend="onCardTouchEnd"
+              >
+                  <view class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--ej-bg-card)] border border-solid border-[var(--ej-border)] shadow-md transition-transform active:scale-95">
+                      <text class="text-base">👁️</text>
+                      <text class="text-sm font-bold text-[var(--ej-text-primary)]">{{ i18n.quizPrompt }}</text>
+                  </view>
               </view>
-              <text class="empty-state-text">{{ i18n.quizPrompt }}</text>
           </view>
 
           <!-- Footer Buttons (Fixed inside the bottom of the card) -->
@@ -1178,29 +1186,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     color: var(--ej-text-secondary);
 }
 
-/* Empty State / Prompt */
-.question-mark-circle {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--ej-bg-pill);
-}
 
-.question-mark {
-    font-size: 36px;
-    font-weight: 800;
-    color: var(--ej-color-brand);
-}
-
-.empty-state-text {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ej-text-muted);
-    text-align: center;
-}
 
 .btn-primary {
     color: #FFFFFF;

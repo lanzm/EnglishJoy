@@ -976,16 +976,8 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     overflow: hidden;
     padding: 0;
     transition: background-color 0.3s, color 0.3s;
-    color: #0F172A;
-}
-
-.page-container.light {
-    background-color: #E9EEF4;
-}
-
-.page-container.dark {
-    background-color: #09090B;
-    color: #F4F4F5;
+    background-color: var(--ej-bg-page);
+    color: var(--ej-text-primary);
 }
 
 /* App Card container - wraps everything */
@@ -993,7 +985,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     width: calc(100% - 40px);
     max-width: 400px;
     height: 92vh;
-    border-radius: 18px; /* Slightly rounded, not too round */
+    border-radius: 18px;
     padding: 28px 20px;
     display: flex;
     flex-direction: column;
@@ -1001,21 +993,10 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     box-sizing: border-box;
     overflow: hidden;
     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease, color 0.3s;
-    border: 1px solid #FFFFFF;
-    color: #0F172A;
-}
-
-.light .app-card {
-    background-color: #FFFFFF;
-    border-color: #FFFFFF;
-    box-shadow: 0 20px 40px -10px rgba(148, 163, 184, 0.3);
-}
-
-.dark .app-card {
-    background-color: #18181B;
-    border-color: #27272A;
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
-    color: #F4F4F5;
+    background-color: var(--ej-bg-card);
+    border: 1px solid var(--ej-border-card);
+    box-shadow: var(--ej-shadow-card);
+    color: var(--ej-text-primary);
 }
 
 /* Dynamic Up swipe transitions (Next Word) */
@@ -1084,32 +1065,23 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     width: calc(100% - 40px);
     max-width: 400px;
     height: 92vh;
-    border-radius: 18px; /* Slightly rounded, not too round */
+    border-radius: 18px;
     padding: 28px 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-sizing: border-box;
     overflow: hidden;
-    border: 1px solid #FFFFFF;
+    background-color: var(--ej-bg-card-bg);
+    border: 1px solid var(--ej-border-card);
+    box-shadow: var(--ej-shadow-card-bg);
+    color: var(--ej-text-primary);
     
     /* Layered Stack appearance default */
     transform: scale(0.94) translateY(24px);
     opacity: 0.85;
     z-index: 5;
     pointer-events: none;
-}
-
-.light .app-card-bg {
-    background-color: #FFFFFF;
-    border-color: #FFFFFF;
-    box-shadow: 0 10px 20px -10px rgba(148, 163, 184, 0.2);
-}
-
-.dark .app-card-bg {
-    background-color: #18181B;
-    border-color: #27272A;
-    box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.4);
 }
 
 .bg-card-to-active {
@@ -1157,8 +1129,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     overflow: hidden;
 }
 
-
-
 /* Word Info Top Section */
 .word-card-top {
     margin-bottom: 12px;
@@ -1184,12 +1154,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     letter-spacing: -0.02em;
     line-height: 1.1;
     word-break: normal;
-}
-.light .word-large-text {
-    color: #0F172A;
-}
-.dark .word-large-text {
-    color: #FFFFFF;
+    color: var(--ej-text-primary);
 }
 
 .phonetic-row {
@@ -1201,11 +1166,8 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 .phonetic-small-text {
     font-size: 16px;
     font-weight: 500;
-    color: #64748B;
+    color: var(--ej-text-muted);
     font-family: monospace;
-}
-.dark .phonetic-small-text {
-    color: #94A3B8;
 }
 
 .phonetic-speaker-inline {
@@ -1237,30 +1199,20 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #E2E8F0;
-    background-color: #FFFFFF;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.08), inset 0 2px 4px #FFFFFF;
+    border: 1px solid var(--ej-border);
+    background-color: var(--ej-bg-card);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.08);
     transition: all 0.2s;
     flex-shrink: 0;
 }
-.dark .speaker-action-btn {
-    background-color: #27272A;
-    border-color: #3F3F46;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
 .speaker-action-btn:active {
     transform: scale(0.94);
-}
-.light .speaker-action-btn:active {
-    background-color: #F1F5F9;
-}
-.dark .speaker-action-btn:active {
-    background-color: #3F3F46;
+    background-color: var(--ej-bg-pill);
 }
 
 .speaker-icon-blue {
     font-size: 20px;
-    color: #2563EB;
+    color: var(--ej-color-brand);
 }
 
 .playing {
@@ -1276,13 +1228,9 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     right: -1px;
     bottom: -1px;
     border-radius: 50%;
-    border: 2px solid #2563EB;
+    border: 2px solid var(--ej-color-brand);
     opacity: 0.8;
     animation: speaker-ripple 0.6s cubic-bezier(0.25, 0, 0, 1) infinite;
-}
-
-.dark .playing::after {
-    border-color: #3B82F6;
 }
 
 /* POS tags */
@@ -1298,13 +1246,9 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    border-radius: 8px; /* Slightly rounded POS pill */
-    background-color: #F1F5F9;
-    border: 1px solid #E2E8F0;
-}
-.dark .pos-pill {
-    background-color: #27272A;
-    border-color: #3F3F46;
+    border-radius: 8px;
+    background-color: var(--ej-bg-pill);
+    border: 1px solid var(--ej-border);
 }
 
 .pos-pill-emoji {
@@ -1314,20 +1258,14 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 .pos-pill-text {
     font-size: 12px;
     font-weight: 700;
-    color: #475569;
-}
-.dark .pos-pill-text {
-    color: #D4D4D8;
+    color: var(--ej-text-secondary);
 }
 
 .card-divider {
     height: 1px;
     width: 100%;
-    background-color: #F1F5F9;
+    background-color: var(--ej-border);
     margin: 16px 0;
-}
-.dark .card-divider {
-    background-color: #27272A;
 }
 
 /* Scroll Area inside Card */
@@ -1386,16 +1324,8 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     margin-bottom: 12px;
     border-radius: 8px;
     overflow: hidden;
-}
-
-.light .detail-section {
-    background: rgba(248, 250, 252, 0.78);
-    border: 1px solid rgba(15, 23, 42, 0.06);
-}
-
-.dark .detail-section {
-    background: rgba(39, 39, 42, 0.72);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--ej-bg-section);
+    border: 1px solid var(--ej-border-section);
 }
 
 .detail-section-header {
@@ -1422,16 +1352,8 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-weight: 800;
     line-height: 1;
     flex-shrink: 0;
-}
-
-.light .section-toggle-icon {
-    color: #2563EB;
-    background: rgba(37, 99, 235, 0.08);
-}
-
-.dark .section-toggle-icon {
-    color: #93C5FD;
-    background: rgba(147, 197, 253, 0.1);
+    color: var(--ej-color-brand);
+    background: var(--ej-color-brand-light);
 }
 
 .detail-section-body {
@@ -1448,13 +1370,10 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     display: block;
     font-size: 14px;
     font-weight: 800;
-    color: #64748B;
+    color: var(--ej-text-muted);
     margin-bottom: 12px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-}
-.dark .section-header-title {
-    color: #94A3B8;
 }
 
 .definition-numbered-list {
@@ -1472,22 +1391,14 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 .item-number-prefix {
     font-size: 13px;
     font-weight: 700;
-    color: #2563EB;
-}
-.dark .item-number-prefix {
-    color: #3B82F6;
+    color: var(--ej-color-brand);
 }
 
 .item-definition-content {
     font-size: 16px;
     font-weight: 600;
     line-height: 1.5;
-}
-.light .item-definition-content {
-    color: #0F172A;
-}
-.dark .item-definition-content {
-    color: #F4F4F5;
+    color: var(--ej-text-primary);
 }
 
 /* Word Anatomy Section */
@@ -1508,16 +1419,8 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     padding: 12px 14px;
     border-radius: 16px;
     box-sizing: border-box;
-}
-
-.light .anatomy-card-item {
-    background: rgba(15, 23, 42, 0.03);
-    border: 1px solid rgba(15, 23, 42, 0.05);
-}
-
-.dark .anatomy-card-item {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--ej-border-section);
+    border: 1px solid var(--ej-border-section);
 }
 
 .anatomy-card-item.full-width {
@@ -1530,27 +1433,13 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 6px;
-}
-
-.light .anatomy-item-label {
-    color: #64748B;
-}
-
-.dark .anatomy-item-label {
-    color: #A1A1AA;
+    color: var(--ej-text-sub);
 }
 
 .anatomy-item-value {
     font-size: 14px;
     font-weight: 600;
-}
-
-.light .anatomy-item-value {
-    color: #1E293B;
-}
-
-.dark .anatomy-item-value {
-    color: #F4F4F5;
+    color: var(--ej-text-primary);
 }
 
 .stars-row {
@@ -1574,7 +1463,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-weight: 800;
     padding: 2px 6px;
     border-radius: 6px;
-    background: #3B82F6;
+    background: var(--ej-color-brand);
     color: #FFFFFF;
     flex-shrink: 0;
 }
@@ -1583,14 +1472,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-size: 13px;
     font-weight: 600;
     line-height: 1.4;
-}
-
-.light .suffix-meaning {
-    color: #1E293B;
-}
-
-.dark .suffix-meaning {
-    color: #F4F4F5;
+    color: var(--ej-text-primary);
 }
 
 /* Examples Section */
@@ -1605,15 +1487,12 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 .example-item-box {
-    border-radius: 12px; /* Matching rounded corners */
+    border-radius: 12px;
     padding: 14px;
     display: flex;
     flex-direction: column;
-    background-color: #F8FAFC;
+    background-color: var(--ej-bg-sub);
     transition: background-color 0.2s;
-}
-.dark .example-item-box {
-    background-color: #27272A;
 }
 
 .example-item-top-row {
@@ -1627,12 +1506,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-weight: 600;
     line-height: 1.45;
     padding-right: 12px;
-}
-.light .example-en-text {
-    color: #0F172A;
-}
-.dark .example-en-text {
-    color: #FAFAFA;
+    color: var(--ej-text-primary);
 }
 
 .play-example-mini-btn {
@@ -1642,19 +1516,12 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    border: 1px solid #E2E8F0;
-    background-color: #FFFFFF;
+    border: 1px solid var(--ej-border);
+    background-color: var(--ej-bg-card);
     flex-shrink: 0;
 }
-.dark .play-example-mini-btn {
-    background-color: #18181B;
-    border-color: #3F3F46;
-}
 .play-example-mini-btn:active {
-    background-color: #F1F5F9;
-}
-.dark .play-example-mini-btn:active {
-    background-color: #3F3F46;
+    background-color: var(--ej-bg-pill);
 }
 
 .play-mini-emoji {
@@ -1665,12 +1532,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-size: 13.5px;
     margin-top: 6px;
     line-height: 1.4;
-}
-.light .example-cn-text {
-    color: #475569;
-}
-.dark .example-cn-text {
-    color: #A1A1AA;
+    color: var(--ej-text-secondary);
 }
 
 /* Skeleton Loader Styles */
@@ -1799,29 +1661,20 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #F1F5F9;
-}
-.dark .question-mark-circle {
-    background-color: #27272A;
+    background-color: var(--ej-bg-pill);
 }
 
 .question-mark {
     font-size: 36px;
     font-weight: 800;
-    color: #2563EB;
-}
-.dark .question-mark {
-    color: #3B82F6;
+    color: var(--ej-color-brand);
 }
 
 .empty-state-text {
     font-size: 14px;
     font-weight: 600;
-    color: #64748B;
+    color: var(--ej-text-muted);
     text-align: center;
-}
-.dark .empty-state-text {
-    color: #94A3B8;
 }
 
 /* Bottom Card Footer Buttons */
@@ -1849,13 +1702,13 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-size: 16px;
 }
 
-/* Card Button Components (Using standard rounded corners, not pill) */
+/* Card Button Components */
 .card-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 50px;
-    border-radius: 12px; /* Modern rounded square corner */
+    border-radius: 12px;
     font-size: 15px;
     font-weight: bold;
     transition: all 0.1s;
@@ -1870,27 +1723,19 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 
 .btn-primary {
     color: #FFFFFF;
-    background-color: #2563EB;
+    background-color: var(--ej-color-brand);
 }
 .btn-primary:active {
-    background-color: #1D4ED8;
+    background-color: var(--ej-color-brand-active);
 }
 
 .btn-secondary {
-    background-color: #FFFFFF;
-    border-color: #E2E8F0;
-    color: #475569;
-}
-.dark .btn-secondary {
-    background-color: #18181B;
-    border-color: #3F3F46;
-    color: #D4D4D8;
+    background-color: var(--ej-bg-btn-secondary);
+    border-color: var(--ej-border);
+    color: var(--ej-text-secondary);
 }
 .btn-secondary:active {
-    background-color: #F8FAFC;
-}
-.dark .btn-secondary:active {
-    background-color: #27272A;
+    background-color: var(--ej-bg-btn-secondary-active);
 }
 
 @keyframes speaker-pulse {
@@ -1936,18 +1781,12 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    box-shadow: 0 6px 16px rgba(100, 116, 139, 0.2);
+    background-color: var(--ej-bg-card);
+    border: 1px solid var(--ej-border);
+    box-shadow: var(--ej-shadow-gear);
     cursor: pointer;
     transition: opacity 0.3s, transform 0.3s, background-color 0.2s;
     opacity: 0.9;
-}
-
-.dark .gear-btn {
-    background-color: #27272A;
-    border-color: #3F3F46;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 .gear-btn.gear-hidden {
@@ -1969,11 +1808,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 
 .gear-icon {
     font-size: 24px;
-    color: #64748B;
-}
-
-.dark .gear-icon {
-    color: #A1A1AA;
+    color: var(--ej-text-muted);
 }
 
 </style>

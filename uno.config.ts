@@ -82,7 +82,11 @@ export default defineConfig({
     // 具体使用方法，在需要使用到 flex justify-center items-center 这个几个类名时，只需要写一个 flex-center 即可
     shortcuts: [
         { "flex-center": "flex justify-center items-center" },
-        { "flex-col-center": "flex justify-center items-center flex-col" }
+        { "flex-col-center": "flex justify-center items-center flex-col" },
+        { "card-btn": "flex items-center justify-center h-[50px] rounded-xl font-bold transition-all box-border w-full active:scale-97" },
+        { "card-pill": "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all" },
+        { "drawer-title-style": "text-lg font-extrabold tracking-tight" },
+        { "section-label-style": "text-xs font-bold uppercase tracking-wider mb-2 block" }
     ],
     // rules 的作用是：在全局范围内添加自定义规则
     // 下面的配置适用于有安全区域的设备（如 iPhone X 上的刘海屏）

@@ -1,0 +1,74 @@
+/* EnglishJoy Global Design Tokens */
+
+:root,
+.light,
+.page-container.light,
+.settings-drawer-wrapper.light {
+  /* Background colors */
+  --ej-bg-page: #E9EEF4;
+  --ej-bg-card: #FFFFFF;
+  --ej-bg-card-bg: #FFFFFF;
+  --ej-bg-sub: #F8FAFC;
+  --ej-bg-pill: #F1F5F9;
+  --ej-bg-section: rgba(248, 250, 252, 0.78);
+  --ej-bg-btn-secondary: #FFFFFF;
+  --ej-bg-btn-secondary-active: #F8FAFC;
+
+  /* Text colors */
+  --ej-text-primary: #0F172A;
+  --ej-text-secondary: #475569;
+  --ej-text-muted: #64748B;
+  --ej-text-sub: #94A3B8;
+
+  /* Border colors */
+  --ej-border: #E2E8F0;
+  --ej-border-card: #FFFFFF;
+  --ej-border-section: rgba(15, 23, 42, 0.06);
+
+  /* Brand & Accent colors */
+  --ej-color-brand: #2563EB;
+  --ej-color-brand-active: #1D4ED8;
+  --ej-color-brand-subtle: rgba(37, 99, 235, 0.06);
+  --ej-color-brand-light: rgba(37, 99, 235, 0.08);
+
+  /* Shadows */
+  --ej-shadow-card: 0 20px 40px -10px rgba(148, 163, 184, 0.3);
+  --ej-shadow-card-bg: 0 10px 20px -10px rgba(148, 163, 184, 0.2);
+  --ej-shadow-gear: 0 6px 16px rgba(100, 116, 139, 0.2);
+}
+
+.dark,
+.page-container.dark,
+.settings-drawer-wrapper.dark {
+  /* Background colors */
+  --ej-bg-page: #09090B;
+  --ej-bg-card: #18181B;
+  --ej-bg-card-bg: #18181B;
+  --ej-bg-sub: #27272A;
+  --ej-bg-pill: #27272A;
+  --ej-bg-section: rgba(39, 39, 42, 0.72);
+  --ej-bg-btn-secondary: #18181B;
+  --ej-bg-btn-secondary-active: #27272A;
+
+  /* Text colors */
+  --ej-text-primary: #F4F4F5;
+  --ej-text-secondary: #D4D4D8;
+  --ej-text-muted: #94A3B8;
+  --ej-text-sub: #A1A1AA;
+
+  /* Border colors */
+  --ej-border: #3F3F46;
+  --ej-border-card: #27272A;
+  --ej-border-section: rgba(255, 255, 255, 0.06);
+
+  /* Brand & Accent colors */
+  --ej-color-brand: #3B82F6;
+  --ej-color-brand-active: #2563EB;
+  --ej-color-brand-subtle: rgba(59, 130, 246, 0.1);
+  --ej-color-brand-light: rgba(147, 197, 253, 0.1);
+
+  /* Shadows */
+  --ej-shadow-card: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+  --ej-shadow-card-bg: 0 10px 20px -10px rgba(0, 0, 0, 0.4);
+  --ej-shadow-gear: 0 6px 16px rgba(0, 0, 0, 0.4);
+}

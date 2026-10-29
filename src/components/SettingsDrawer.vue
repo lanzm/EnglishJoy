@@ -49,7 +49,7 @@ const closeDrawer = () => {
         ></view>
         
         <!-- Settings Drawer Panel -->
-        <view class="drawer-panel" :class="[{ 'show': show }, isDark]">
+        <view class="drawer-panel" :class="{ 'show': show }">
             <!-- Main Settings View -->
             <view v-if="!showSavedWordsList" class="drawer-view-container">
                 <view class="drawer-header">
@@ -214,8 +214,8 @@ const closeDrawer = () => {
     </view>
 </template>
 
-<style>
-/* Drawer styles */
+<style scoped>
+/* Drawer structural styles */
 .drawer-overlay {
     position: fixed;
     top: 0;
@@ -239,7 +239,8 @@ const closeDrawer = () => {
     bottom: 0;
     width: 100%;
     height: 70vh;
-    background-color: #FFFFFF;
+    background-color: var(--ej-bg-card);
+    color: var(--ej-text-primary);
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     z-index: 1001;
@@ -247,20 +248,14 @@ const closeDrawer = () => {
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s, color 0.3s;
     box-sizing: border-box;
     padding: 20px 16px calc(16px + env(safe-area-inset-bottom)) 16px;
-    color: #0F172A;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
-.dark .drawer-panel,
-.drawer-panel.dark {
-    background-color: #18181B;
-    color: #F4F4F5;
-}
 .drawer-panel.show {
     transform: translateY(0);
 }
- 
+
 .drawer-view-container {
     display: flex;
     flex-direction: column;
@@ -268,41 +263,34 @@ const closeDrawer = () => {
     height: 100%;
     overflow: hidden;
 }
- 
+
 .drawer-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
 }
- 
+
 .drawer-header-left {
     display: flex;
     align-items: center;
     gap: 8px;
 }
- 
-.drawer-back-arrow {
-    font-size: 18px;
-    font-weight: bold;
-    color: #2563EB;
-}
- 
+
+.drawer-back-arrow,
 .drawer-title-sub {
-    font-size: 14px;
-    font-weight: 600;
-    color: #2563EB;
+    color: var(--ej-color-brand);
 }
- 
+
 .drawer-title {
     font-size: 18px;
     font-weight: 800;
     letter-spacing: -0.02em;
 }
- 
+
 .drawer-close-btn {
     font-size: 20px;
-    color: #94A3B8;
+    color: var(--ej-text-sub);
     cursor: pointer;
     padding: 4px;
 }
@@ -315,31 +303,23 @@ const closeDrawer = () => {
     display: block;
     font-size: 13px;
     font-weight: 700;
-    color: #64748B;
+    color: var(--ej-text-muted);
     margin-bottom: 8px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-}
-.dark .section-label {
-    color: #A1A1AA;
 }
 
 .tts-toggle-card {
     min-height: 58px;
     padding: 10px 12px;
     border-radius: 8px;
-    border: 1px solid #E2E8F0;
-    background-color: #F8FAFC;
+    border: 1px solid var(--ej-border);
+    background-color: var(--ej-bg-sub);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     box-sizing: border-box;
-}
-
-.dark .tts-toggle-card {
-    background-color: #27272A;
-    border-color: #3F3F46;
 }
 
 .tts-toggle-info {
@@ -352,21 +332,13 @@ const closeDrawer = () => {
 .tts-toggle-title {
     font-size: 14px;
     font-weight: 700;
-    color: #0F172A;
-}
-
-.dark .tts-toggle-title {
-    color: #F4F4F5;
+    color: var(--ej-text-primary);
 }
 
 .tts-toggle-desc {
     font-size: 12px;
     line-height: 1.35;
-    color: #64748B;
-}
-
-.dark .tts-toggle-desc {
-    color: #A1A1AA;
+    color: var(--ej-text-muted);
 }
 
 .book-grid {
@@ -383,25 +355,17 @@ const closeDrawer = () => {
     gap: 8px;
     border-radius: 12px;
     padding: 12px;
-    border: 1px solid #E2E8F0;
-    background-color: #F8FAFC;
+    border: 1px solid var(--ej-border);
+    background-color: var(--ej-bg-sub);
     text-align: center;
     transition: all 0.2s;
 }
-.dark .book-card {
-    background-color: #27272A;
-    border-color: #3F3F46;
-}
+
 .book-card.active {
-    border-color: #2563EB;
-    background-color: rgba(37, 99, 235, 0.06);
-    color: #2563EB;
+    border-color: var(--ej-color-brand);
+    background-color: var(--ej-color-brand-subtle);
+    color: var(--ej-color-brand);
     font-weight: bold;
-}
-.dark .book-card.active {
-    border-color: #3B82F6;
-    background-color: rgba(59, 130, 246, 0.1);
-    color: #3B82F6;
 }
 
 .book-card-name {
@@ -413,31 +377,19 @@ const closeDrawer = () => {
     font-size: 11px;
     font-weight: 600;
     text-align: center;
-    color: #64748B;
-}
-
-.dark .book-card-count {
-    color: #A1A1AA;
+    color: var(--ej-text-muted);
 }
 
 .book-card.active .book-card-count {
-    color: #2563EB;
-}
-
-.dark .book-card.active .book-card-count {
-    color: #3B82F6;
+    color: var(--ej-color-brand);
 }
 
 .theme-switch-container {
     display: flex;
     border-radius: 12px;
-    border: 1px solid #E2E8F0;
+    border: 1px solid var(--ej-border);
     overflow: hidden;
-    background-color: #F8FAFC;
-}
-.dark .theme-switch-container {
-    border-color: #3F3F46;
-    background-color: #27272A;
+    background-color: var(--ej-bg-sub);
 }
 
 .theme-switch-option {
@@ -447,20 +399,14 @@ const closeDrawer = () => {
     font-size: 14px;
     font-weight: 500;
     transition: all 0.2s;
-    color: #64748B;
+    color: var(--ej-text-muted);
 }
-.dark .theme-switch-option {
-    color: #A1A1AA;
-}
+
 .theme-switch-option.active {
-    background-color: #FFFFFF;
-    color: #2563EB;
+    background-color: var(--ej-bg-card);
+    color: var(--ej-color-brand);
     font-weight: bold;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-.dark .theme-switch-option.active {
-    background-color: #18181B;
-    color: #3B82F6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .lang-switch-item {
@@ -481,23 +427,15 @@ const closeDrawer = () => {
     border-radius: 4px;
     font-size: 11px;
     font-weight: 800;
-    background-color: #E2E8F0;
-    color: #64748B;
+    background-color: var(--ej-border);
+    color: var(--ej-text-muted);
     line-height: 1;
     transition: all 0.2s;
 }
-.dark .lang-badge {
-    background-color: #3F3F46;
-    color: #A1A1AA;
-}
 
 .theme-switch-option.active .lang-badge {
-    background-color: #2563EB;
+    background-color: var(--ej-color-brand);
     color: #FFFFFF;
-}
-.dark .theme-switch-option.active .lang-badge {
-    background-color: #3B82F6;
-    color: #18181B;
 }
 
 .lang-text {
@@ -505,20 +443,15 @@ const closeDrawer = () => {
     font-weight: 500;
 }
 
-/* Word list entry card inside drawer settings */
 .word-list-entry-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #F8FAFC;
+    background-color: var(--ej-bg-sub);
     padding: 14px;
     border-radius: 12px;
-    border: 1px solid #E2E8F0;
+    border: 1px solid var(--ej-border);
     transition: all 0.2s;
-}
-.dark .word-list-entry-card {
-    background-color: #27272A;
-    border-color: #3F3F46;
 }
 .word-list-entry-card:active {
     opacity: 0.8;
@@ -542,44 +475,29 @@ const closeDrawer = () => {
 .entry-card-title {
     font-size: 14px;
     font-weight: 700;
-}
-.light .entry-card-title {
-    color: #0F172A;
-}
-.dark .entry-card-title {
-    color: #FAFAFA;
+    color: var(--ej-text-primary);
 }
 
 .entry-card-subtitle {
     font-size: 12px;
-    color: #64748B;
+    color: var(--ej-text-muted);
     margin-top: 2px;
-}
-.dark .entry-card-subtitle {
-    color: #94A3B8;
 }
 
 .entry-card-arrow {
     font-size: 16px;
     font-weight: bold;
-    color: #64748B;
-}
-.dark .entry-card-arrow {
-    color: #94A3B8;
+    color: var(--ej-text-muted);
 }
 
 .progress-details {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #F8FAFC;
+    background-color: var(--ej-bg-sub);
     padding: 12px;
     border-radius: 12px;
-    border: 1px solid #E2E8F0;
-}
-.dark .progress-details {
-    background-color: #27272A;
-    border-color: #3F3F46;
+    border: 1px solid var(--ej-border);
 }
 
 .progress-info-text {
@@ -631,10 +549,7 @@ const closeDrawer = () => {
 
 .drawer-empty-text {
     font-size: 13.5px;
-    color: #64748B;
-}
-.dark .drawer-empty-text {
-    color: #94A3B8;
+    color: var(--ej-text-muted);
 }
 
 .saved-words-list {
@@ -648,15 +563,11 @@ const closeDrawer = () => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #F8FAFC;
-    border: 1px solid #E2E8F0;
+    background-color: var(--ej-bg-sub);
+    border: 1px solid var(--ej-border);
     border-radius: 12px;
     padding: 12px;
     transition: all 0.2s;
-}
-.dark .saved-word-item {
-    background-color: #27272A;
-    border-color: #3F3F46;
 }
 .saved-word-item:active {
     opacity: 0.85;
@@ -679,32 +590,21 @@ const closeDrawer = () => {
 .saved-word-name {
     font-size: 16px;
     font-weight: 700;
-}
-.light .saved-word-name {
-    color: #0F172A;
-}
-.dark .saved-word-name {
-    color: #FFFFFF;
+    color: var(--ej-text-primary);
 }
 
 .saved-word-phonetic {
     font-size: 12.5px;
-    color: #64748B;
+    color: var(--ej-text-muted);
     font-family: monospace;
-}
-.dark .saved-word-phonetic {
-    color: #94A3B8;
 }
 
 .saved-word-translation {
     font-size: 13px;
-    color: #475569;
+    color: var(--ej-text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-.dark .saved-word-translation {
-    color: #A1A1AA;
 }
 
 .saved-word-delete-btn {
@@ -714,13 +614,9 @@ const closeDrawer = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
+    background-color: var(--ej-bg-card);
+    border: 1px solid var(--ej-border);
     flex-shrink: 0;
-}
-.dark .saved-word-delete-btn {
-    background-color: #18181B;
-    border-color: #3F3F46;
 }
 .saved-word-delete-btn:active {
     transform: scale(0.9);

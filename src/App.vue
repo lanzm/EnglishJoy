@@ -11,4 +11,5 @@ onHide(() => {
 });
 </script>
 <style>
+@import "@/styles/theme.css";
 </style>

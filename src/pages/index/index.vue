@@ -631,11 +631,11 @@ onUnmounted(() => {
         :style="bgCardStyle"
       >
           <!-- Word & Audio Section (Fixed) -->
-          <view v-if="bgWordObj" class="word-card-top shrink-0">
-              <view class="word-flex-row">
-                  <view class="word-left-col">
+          <view v-if="bgWordObj" class="mb-3 shrink-0">
+              <view class="flex justify-between items-center">
+                  <view class="flex flex-col gap-1 flex-1 min-w-0">
                       <text class="word-large-text">{{ bgWordObj.w }}</text>
-                      <view class="phonetic-row">
+                      <view class="inline-flex items-center gap-2">
                           <text class="phonetic-small-text">/{{ bgWordObj.p }}/</text>
                           <text v-if="!ttsDisabled" class="phonetic-speaker-inline"></text>
                       </view>
@@ -643,13 +643,13 @@ onUnmounted(() => {
               </view>
               
               <!-- Part of Speech Tabs/Pills -->
-              <view class="pos-tags-container" v-if="bgWordObj?.t && bgWordObj.t.length > 0">
+              <view class="flex flex-wrap gap-2 mt-3.5" v-if="bgWordObj?.t && bgWordObj.t.length > 0">
                   <view 
                     v-for="(item, index) in getUniquePos(bgWordObj.t)" 
                     :key="index"
                     class="pos-pill"
                   >
-                      <text class="pos-pill-emoji">{{ getPosIcon(item) }}</text>
+                      <text class="text-[13px]">{{ getPosIcon(item) }}</text>
                       <text class="pos-pill-text">{{ item }}</text>
                   </view>
               </view>
@@ -661,17 +661,17 @@ onUnmounted(() => {
           <!-- Scrollable details container (Static mock) -->
           <view 
             v-if="bgKnowFlag && bgWordObj" 
-            class="card-scroll-view flex-1 static-detail-view"
+            class="card-scroll-view flex-1 overflow-hidden"
           >
-              <view class="scroll-content-container">
+              <view class="pr-3 box-border w-full">
                   <!-- Definitions -->
-                  <view class="definitions-container">
+                  <view class="mb-3">
                       <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
-                      <view class="definition-numbered-list">
+                      <view class="flex flex-col gap-3">
                           <view 
                             v-for="(item, index) in bgWordObj?.t" 
                             :key="index" 
-                            class="definition-numbered-item"
+                            class="flex flex-col gap-0.5"
                           >
                               <text class="item-number-prefix">{{ index + 1 }}. ({{ item[0].replace(/\.$/, '') }})</text>
                               <text class="item-definition-content">{{ item[1] }}</text>
@@ -682,7 +682,7 @@ onUnmounted(() => {
           </view>
 
           <!-- Quiz card face (Static mock) -->
-          <view v-else class="card-empty-state flex-1 flex-col-center">
+          <view v-else class="flex-1 flex-col-center gap-4 cursor-pointer">
               <view class="question-mark-circle">
                   <text class="question-mark">?</text>
               </view>
@@ -690,15 +690,15 @@ onUnmounted(() => {
           </view>
 
           <!-- Footer Buttons (Static mock) -->
-          <view class="card-footer shrink-0">
-              <view class="footer-button-container">
-                  <view v-if="bgKnowFlag" class="card-split-buttons">
-                      <view class="card-btn btn-secondary">{{ i18n.addWordBtn }}</view>
-                      <view class="card-btn btn-primary">{{ i18n.nextBtn }}</view>
+          <view class="mt-4 shrink-0">
+              <view class="w-full">
+                  <view v-if="bgKnowFlag" class="flex gap-3">
+                      <view class="card-btn btn-secondary flex-[3] text-sm">{{ i18n.addWordBtn }}</view>
+                      <view class="card-btn btn-primary flex-[7] text-base">{{ i18n.nextBtn }}</view>
                   </view>
-                  <view v-else class="card-split-buttons">
-                      <view class="card-btn btn-secondary">{{ i18n.dontKnowBtn }}</view>
-                      <view class="card-btn btn-primary">{{ i18n.knowBtn }}</view>
+                  <view v-else class="flex gap-3">
+                      <view class="card-btn btn-secondary flex-[3] text-sm">{{ i18n.dontKnowBtn }}</view>
+                      <view class="card-btn btn-primary flex-[7] text-base">{{ i18n.knowBtn }}</view>
                   </view>
               </view>
           </view>
@@ -710,53 +710,53 @@ onUnmounted(() => {
         :class="[cardTransitionClass]"
         :style="cardStyle"
       >
-          <view v-if="loading || !wordObj" class="card-skeleton-state">
-              <view class="skeleton-top">
-                  <view class="skeleton-line skeleton-word"></view>
-                  <view class="skeleton-line skeleton-phonetic"></view>
-                  <view class="skeleton-pill"></view>
+          <view v-if="loading || !wordObj" class="flex flex-col h-full w-full box-border flex-1">
+              <view class="flex flex-col items-center justify-center gap-3 mb-7 pt-2.5">
+                  <view class="skeleton-shimmer w-[160px] h-[36px] rounded-md"></view>
+                  <view class="skeleton-shimmer w-[100px] h-[18px] rounded"></view>
+                  <view class="skeleton-shimmer w-[64px] h-[22px] rounded-full"></view>
               </view>
 
               <view class="card-divider shrink-0"></view>
 
-              <view class="skeleton-body">
-                  <view class="skeleton-circle"></view>
-                  <view class="skeleton-line skeleton-prompt-wide"></view>
-                  <view class="skeleton-line skeleton-prompt-short"></view>
+              <view class="flex-1 flex flex-col items-center justify-center gap-4 py-7">
+                  <view class="skeleton-shimmer w-[72px] h-[72px] rounded-full"></view>
+                  <view class="skeleton-shimmer w-[200px] h-4 rounded"></view>
+                  <view class="skeleton-shimmer w-[140px] h-4 rounded"></view>
               </view>
 
-              <view class="skeleton-footer">
-                  <view class="skeleton-button skeleton-button-secondary"></view>
-                  <view class="skeleton-button skeleton-button-primary"></view>
+              <view class="flex gap-3 w-full mt-auto pb-1">
+                  <view class="skeleton-shimmer h-[48px] rounded-xl flex-[3]"></view>
+                  <view class="skeleton-shimmer h-[48px] rounded-xl flex-[7]"></view>
               </view>
           </view>
 
           <!-- Word & Audio Section (Fixed) -->
           <view 
             v-else
-            class="word-card-top shrink-0"
+            class="mb-3 shrink-0"
             @touchstart="onCardTouchStart"
             @touchmove="onCardTouchMove"
             @touchend="onCardTouchEnd"
           >
-              <view class="word-flex-row">
-                  <view class="word-left-col">
+              <view class="flex justify-between items-center">
+                  <view class="flex flex-col gap-1 flex-1 min-w-0">
                       <text class="word-large-text" @click.stop="!ttsDisabled && getSpeech()">{{ wordObj.w }}</text>
-                      <view class="phonetic-row" @click.stop="!ttsDisabled && getSpeech()">
+                      <view class="inline-flex items-center gap-2" @click.stop="!ttsDisabled && getSpeech()">
                           <text class="phonetic-small-text">/{{ wordObj.p }}/</text>
                           <text v-if="!ttsDisabled" class="phonetic-speaker-inline" :class="{ 'playing': playFlag }"></text>
                       </view>
                   </view>
               </view>
               
-              <!-- Part of Speech Tabs/Pills (Directly beneath phonetic, matching the mockup layout) -->
-              <view class="pos-tags-container" v-if="wordObj?.t && wordObj.t.length > 0">
+              <!-- Part of Speech Tabs/Pills -->
+              <view class="flex flex-wrap gap-2 mt-3.5" v-if="wordObj?.t && wordObj.t.length > 0">
                   <view 
                     v-for="(item, index) in getUniquePos(wordObj.t)" 
                     :key="index"
                     class="pos-pill"
                   >
-                      <text class="pos-pill-emoji">{{ getPosIcon(item) }}</text>
+                      <text class="text-[13px]">{{ getPosIcon(item) }}</text>
                       <text class="pos-pill-text">{{ item }}</text>
                   </view>
               </view>
@@ -769,30 +769,30 @@ onUnmounted(() => {
           <view
             v-if="knowFlag && wordObj && !loading"
             :key="'detail-' + wordObj.w"
-            class="detail-gesture-shell flex-1"
+            class="flex flex-1 w-full min-h-0 box-border"
           >
               <scroll-view
                 scroll-y="true"
                 :scroll-top="scrollTop"
-                class="card-scroll-view detail-scroll-view"
+                class="card-scroll-view w-full h-full min-w-0 flex-1"
                 @scroll="onDetailScroll"
                 @touchstart="onDetailTouchStart"
                 @touchmove="onDetailTouchMove"
                 @touchend="onDetailTouchEnd"
               >
-                  <view class="scroll-content-container detail-scroll-content">
+                  <view class="pr-1 box-border w-full">
                       <!-- Definitions -->
-                      <view class="detail-section definitions-container">
+                      <view class="detail-section mb-3">
                           <view class="detail-section-header" @click.stop="toggleDetailSection('definitions')">
                               <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
                               <text class="section-toggle-icon">{{ detailSections.definitions ? '-' : '+' }}</text>
                           </view>
-                          <view v-if="detailSections.definitions" class="detail-section-body">
-                              <view class="definition-numbered-list">
+                          <view v-if="detailSections.definitions" class="px-2 pb-3 box-border">
+                              <view class="flex flex-col gap-3">
                               <view
                                 v-for="(item, index) in wordObj?.t"
                                 :key="index"
-                                class="definition-numbered-item"
+                                class="flex flex-col gap-0.5"
                               >
                                   <text class="item-number-prefix">{{ index + 1 }}. ({{ item[0].replace(/\.$/, '') }})</text>
                                   <text class="item-definition-content">{{ item[1] }}</text>
@@ -802,13 +802,13 @@ onUnmounted(() => {
                       </view>
 
                       <!-- Examples / Translations -->
-                      <view v-if="wordObj?.s && wordObj.s.length > 0" class="detail-section examples-container">
+                      <view v-if="wordObj?.s && wordObj.s.length > 0" class="detail-section mb-3 pb-0">
                           <view class="detail-section-header" @click.stop="toggleDetailSection('examples')">
                               <text class="section-header-title">{{ i18n.examplesTitle }}</text>
                               <text class="section-toggle-icon">{{ detailSections.examples ? '-' : '+' }}</text>
                           </view>
-                          <view v-if="detailSections.examples" class="detail-section-body">
-                              <view class="examples-vertical-list">
+                          <view v-if="detailSections.examples" class="px-2 pb-3 box-border">
+                              <view class="flex flex-col gap-3">
                               <view
                                 v-for="(item, index) in wordObj.s"
                                 :key="index"
@@ -822,37 +822,37 @@ onUnmounted(() => {
                       </view>
 
                       <!-- Word Anatomy Section -->
-                      <view class="detail-section anatomy-container" v-if="wordObj?.w">
+                      <view class="detail-section mb-3" v-if="wordObj?.w">
                           <view class="detail-section-header" @click.stop="toggleDetailSection('anatomy')">
                               <text class="section-header-title">{{ i18n.wordAnatomyTitle }}</text>
                               <text class="section-toggle-icon">{{ detailSections.anatomy ? '-' : '+' }}</text>
                           </view>
-                          <view v-if="detailSections.anatomy" class="detail-section-body">
-                              <view class="anatomy-grid">
+                          <view v-if="detailSections.anatomy" class="px-2 pb-3 box-border">
+                              <view class="flex flex-wrap gap-3">
                               <view class="anatomy-card-item">
                                   <text class="anatomy-item-label">{{ i18n.difficultyLabel }}</text>
-                                  <view class="stars-row">
+                                  <view class="flex items-center gap-0.5">
                                       <text
                                         v-for="star in currentWordAnatomy.difficulty"
                                         :key="'star-' + star"
-                                        class="star-icon"
+                                        class="text-sm"
                                       >⭐</text>
                                   </view>
                               </view>
                               <view class="anatomy-card-item">
                                   <text class="anatomy-item-label">{{ i18n.syllablesLabel }}</text>
-                                  <text class="anatomy-item-value">{{ i18n.syllablesCountText(currentWordAnatomy.syllables) }}</text>
+                                  <text class="text-sm font-semibold text-[var(--ej-text-primary)]">{{ i18n.syllablesCountText(currentWordAnatomy.syllables) }}</text>
                               </view>
                               <view class="anatomy-card-item full-width" v-if="currentWordAnatomy.suffixInfo">
                                   <text class="anatomy-item-label">{{ i18n.suffixLabel }}</text>
-                                  <view class="anatomy-suffix-box">
+                                  <view class="flex items-start gap-2">
                                       <text class="suffix-badge">{{ currentWordAnatomy.suffixInfo.suffix }}</text>
                                       <text class="suffix-meaning">{{ currentWordAnatomy.suffixInfo.meaning }}</text>
                                   </view>
                               </view>
                               <view class="anatomy-card-item full-width" v-else>
                                   <text class="anatomy-item-label">{{ i18n.lengthLabel }}</text>
-                                  <text class="anatomy-item-value">{{ i18n.wordLengthText(currentWordAnatomy.wordLength, currentWordAnatomy.vowelsCount, currentWordAnatomy.consonantsCount) }}</text>
+                                  <text class="text-sm font-semibold text-[var(--ej-text-primary)]">{{ i18n.wordLengthText(currentWordAnatomy.wordLength, currentWordAnatomy.vowelsCount, currentWordAnatomy.consonantsCount) }}</text>
                               </view>
                               </view>
                           </view>
@@ -864,7 +864,7 @@ onUnmounted(() => {
           <!-- If definitions are not shown, show a clean, centered quiz card face (Tapping reveals translation) -->
           <view
             v-if="!knowFlag && wordObj && !loading"
-            class="card-empty-state flex-1 flex-col-center" 
+            class="flex-1 flex-col-center gap-4 cursor-pointer" 
             @click="handleCardTap"
             @touchstart="onCardTouchStart"
             @touchmove="onCardTouchMove"
@@ -879,27 +879,27 @@ onUnmounted(() => {
           <!-- Footer Buttons (Fixed inside the bottom of the card) -->
           <view 
             v-if="wordObj && !loading"
-            class="card-footer shrink-0"
+            class="mt-4 shrink-0"
             @touchstart="onCardTouchStart"
             @touchmove="onCardTouchMove"
             @touchend="onCardTouchEnd"
           >
-              <view v-if="wordObj && !loading" class="footer-button-container">
+              <view v-if="wordObj && !loading" class="w-full">
                   <!-- When definition is shown: Add to Word List (secondary) & Next Word (primary) -->
-                  <view v-if="knowFlag" class="card-split-buttons">
-                      <view class="card-btn btn-secondary" @click.stop="addToWordList(wordObj)">
+                  <view v-if="knowFlag" class="flex gap-3">
+                      <view class="card-btn btn-secondary flex-[3] text-sm" @click.stop="addToWordList(wordObj)">
                           {{ i18n.addWordBtn }}
                       </view>
-                      <view class="card-btn btn-primary" @click.stop="nextWord()">
+                      <view class="card-btn btn-primary flex-[7] text-base" @click.stop="nextWord()">
                           {{ i18n.nextBtn }}
                       </view>
                   </view>
                   <!-- When definition is hidden: Don't Know (secondary) & Know (primary) -->
-                  <view v-else class="card-split-buttons">
-                      <view class="card-btn btn-secondary animate-fade-in" @click.stop="knowFlag = true">
+                  <view v-else class="flex gap-3">
+                      <view class="card-btn btn-secondary flex-[3] text-sm animate-fade-in" @click.stop="knowFlag = true">
                           {{ i18n.dontKnowBtn }}
                       </view>
-                      <view class="card-btn btn-primary animate-fade-in" @click.stop="nextWord()">
+                      <view class="card-btn btn-primary flex-[7] text-base animate-fade-in" @click.stop="nextWord()">
                           {{ i18n.knowBtn }}
                       </view>
                   </view>
@@ -1148,6 +1148,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     min-width: 0;
 }
 
+/* Word Info Top Section */
 .word-large-text {
     font-size: 36px;
     font-weight: 800;
@@ -1155,12 +1156,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     line-height: 1.1;
     word-break: normal;
     color: var(--ej-text-primary);
-}
-
-.phonetic-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
 }
 
 .phonetic-small-text {
@@ -1234,13 +1229,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 /* POS tags */
-.pos-tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
-}
-
 .pos-pill {
     display: flex;
     align-items: center;
@@ -1249,10 +1237,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     border-radius: 8px;
     background-color: var(--ej-bg-pill);
     border: 1px solid var(--ej-border);
-}
-
-.pos-pill-emoji {
-    font-size: 13px;
 }
 
 .pos-pill-text {
@@ -1269,30 +1253,11 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 /* Scroll Area inside Card */
-.detail-gesture-shell {
-    display: flex;
-    flex: 1;
-    width: 100%;
-    min-height: 0;
-    box-sizing: border-box;
-}
-
 .card-scroll-view {
     overflow-y: auto;
     padding-right: 0;
     width: 100%;
     box-sizing: border-box;
-}
-
-.detail-scroll-view {
-    width: 100%;
-    height: 100%;
-    min-width: 0;
-    flex: 1;
-}
-
-.detail-scroll-view .scroll-content-container {
-    padding-right: 4px;
 }
 
 /* Custom premium thin scrollbar styling */
@@ -1314,14 +1279,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     background-color: transparent;
 }
 
-.scroll-content-container {
-    padding-right: 12px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
 .detail-section {
-    margin-bottom: 12px;
     border-radius: 8px;
     overflow: hidden;
     background: var(--ej-bg-section);
@@ -1335,10 +1293,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-
-.detail-section-header .section-header-title {
-    margin-bottom: 0;
 }
 
 .section-toggle-icon {
@@ -1356,16 +1310,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     background: var(--ej-color-brand-light);
 }
 
-.detail-section-body {
-    padding: 0 8px 12px;
-    box-sizing: border-box;
-}
-
 /* Definitions List */
-.definitions-container {
-    margin-bottom: 12px;
-}
-
 .section-header-title {
     display: block;
     font-size: 14px;
@@ -1374,18 +1319,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     margin-bottom: 12px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-}
-
-.definition-numbered-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.definition-numbered-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
 }
 
 .item-number-prefix {
@@ -1402,16 +1335,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 /* Word Anatomy Section */
-.anatomy-container {
-    margin-bottom: 12px;
-}
-
-.anatomy-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
 .anatomy-card-item {
     flex: 1 1 calc(50% - 6px);
     display: flex;
@@ -1436,28 +1359,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     color: var(--ej-text-sub);
 }
 
-.anatomy-item-value {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ej-text-primary);
-}
-
-.stars-row {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.star-icon {
-    font-size: 14px;
-}
-
-.anatomy-suffix-box {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-}
-
 .suffix-badge {
     font-size: 11px;
     font-weight: 800;
@@ -1476,16 +1377,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 /* Examples Section */
-.examples-container {
-    padding-bottom: 0;
-}
-
-.examples-vertical-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
 .example-item-box {
     border-radius: 12px;
     padding: 14px;
@@ -1493,12 +1384,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     flex-direction: column;
     background-color: var(--ej-bg-sub);
     transition: background-color 0.2s;
-}
-
-.example-item-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
 }
 
 .example-en-text {
@@ -1509,25 +1394,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     color: var(--ej-text-primary);
 }
 
-.play-example-mini-btn {
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    border: 1px solid var(--ej-border);
-    background-color: var(--ej-bg-card);
-    flex-shrink: 0;
-}
-.play-example-mini-btn:active {
-    background-color: var(--ej-bg-pill);
-}
-
-.play-mini-emoji {
-    font-size: 11px;
-}
-
 .example-cn-text {
     font-size: 13.5px;
     margin-top: 6px;
@@ -1535,125 +1401,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     color: var(--ej-text-secondary);
 }
 
-/* Skeleton Loader Styles */
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
-
-.card-skeleton-state {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    box-sizing: border-box;
-    flex: 1;
-}
-
-.skeleton-top {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 28px;
-    padding-top: 10px;
-}
-
-.skeleton-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 30px 0;
-}
-
-.skeleton-footer {
-    display: flex;
-    gap: 12px;
-    width: 100%;
-    margin-top: auto;
-    padding-bottom: 5px;
-}
-
-.skeleton-line, .skeleton-pill, .skeleton-circle, .skeleton-button {
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite linear;
-}
-
-.light .skeleton-line, .light .skeleton-pill, .light .skeleton-circle, .light .skeleton-button {
-    background-image: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 37%, #F1F5F9 63%);
-}
-
-.dark .skeleton-line, .dark .skeleton-pill, .dark .skeleton-circle, .dark .skeleton-button {
-    background-image: linear-gradient(90deg, #27272A 25%, #3F3F46 37%, #27272A 63%);
-}
-
-.skeleton-word {
-    width: 160px;
-    height: 36px;
-    border-radius: 6px;
-}
-
-.skeleton-phonetic {
-    width: 100px;
-    height: 18px;
-    border-radius: 4px;
-}
-
-.skeleton-pill {
-    width: 64px;
-    height: 22px;
-    border-radius: 11px;
-}
-
-.skeleton-circle {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-}
-
-.skeleton-prompt-wide {
-    width: 200px;
-    height: 16px;
-    border-radius: 4px;
-}
-
-.skeleton-prompt-short {
-    width: 140px;
-    height: 16px;
-    border-radius: 4px;
-}
-
-.skeleton-button {
-    height: 48px;
-    border-radius: 10px;
-}
-
-.skeleton-button-secondary {
-    flex: 3;
-}
-
-.skeleton-button-primary {
-    flex: 7;
-}
-
 /* Empty State / Prompt */
-.card-empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    cursor: pointer;
-}
-
 .question-mark-circle {
     width: 80px;
     height: 80px;
@@ -1675,50 +1423,6 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-weight: 600;
     color: var(--ej-text-muted);
     text-align: center;
-}
-
-/* Bottom Card Footer Buttons */
-.card-footer {
-    margin-top: 16px;
-    flex-shrink: 0;
-}
-
-.footer-button-container {
-    width: 100%;
-}
-
-.card-split-buttons {
-    display: flex;
-    gap: 12px;
-}
-
-.card-split-buttons .btn-secondary {
-    flex: 3 1 0;
-    font-size: 14px;
-}
-
-.card-split-buttons .btn-primary {
-    flex: 7 1 0;
-    font-size: 16px;
-}
-
-/* Card Button Components */
-.card-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 50px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: bold;
-    transition: all 0.1s;
-    box-sizing: border-box;
-    min-width: 0;
-    width: 100%;
-    border: 1px solid transparent;
-}
-.card-btn:active {
-    transform: scale(0.97);
 }
 
 .btn-primary {

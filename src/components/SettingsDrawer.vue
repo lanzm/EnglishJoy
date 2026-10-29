@@ -51,18 +51,18 @@ const closeDrawer = () => {
         <!-- Settings Drawer Panel -->
         <view class="drawer-panel" :class="{ 'show': show }">
             <!-- Main Settings View -->
-            <view v-if="!showSavedWordsList" class="drawer-view-container">
-                <view class="drawer-header">
-                    <text class="drawer-title">{{ i18n.settingsTitle }}</text>
-                    <view class="drawer-close-btn" @click="closeDrawer">✕</view>
+            <view v-if="!showSavedWordsList" class="flex flex-col w-full h-full overflow-hidden">
+                <view class="flex justify-between items-center mb-4">
+                    <text class="drawer-title-style">{{ i18n.settingsTitle }}</text>
+                    <view class="text-xl text-[var(--ej-text-sub)] cursor-pointer p-1" @click="closeDrawer">✕</view>
                 </view>
                 
-                <scroll-view scroll-y="true" class="drawer-scroll-view">
-                    <view class="drawer-scroll-content">
+                <scroll-view scroll-y="true" class="flex-1 min-h-0 h-full">
+                    <view class="pr-3 box-border w-full">
                         <!-- Option 1: Wordbook Select -->
-                        <view class="drawer-section">
-                            <text class="section-label">{{ i18n.currentBookLabel }}</text>
-                            <view class="book-grid">
+                        <view class="mb-4">
+                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.currentBookLabel }}</text>
+                            <view class="grid grid-cols-2 gap-2.5">
                                 <view 
                                     v-for="item in wordBookList" 
                                     :key="item.value"
@@ -70,16 +70,16 @@ const closeDrawer = () => {
                                     :class="{ 'active': currentBookValue === item.value }"
                                     @click="emit('change-book', item)"
                                 >
-                                    <text class="book-card-name">{{ i18n.wordBookLabels[item.value] || item.label }}</text>
+                                    <text class="text-sm text-center">{{ i18n.wordBookLabels[item.value] || item.label }}</text>
                                     <text class="book-card-count">{{ i18n.wordBookCountText(item.count) }}</text>
                                 </view>
                             </view>
                         </view>
                         
                         <!-- Option 2: Theme Toggle -->
-                        <view class="drawer-section">
-                            <text class="section-label">{{ i18n.themeLabel }}</text>
-                            <view class="theme-switch-container">
+                        <view class="mb-4">
+                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.themeLabel }}</text>
+                            <view class="flex rounded-xl border border-solid border-[var(--ej-border)] overflow-hidden bg-[var(--ej-bg-sub)]">
                                 <view 
                                     class="theme-switch-option"
                                     :class="{ 'active': isDark === 'light' }"
@@ -98,17 +98,17 @@ const closeDrawer = () => {
                         </view>
 
                         <!-- Option 2.5: Language Toggle -->
-                        <view class="drawer-section">
-                            <text class="section-label">{{ i18n.langLabel }}</text>
-                            <view class="theme-switch-container">
+                        <view class="mb-4">
+                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.langLabel }}</text>
+                            <view class="flex rounded-xl border border-solid border-[var(--ej-border)] overflow-hidden bg-[var(--ej-bg-sub)]">
                                 <view 
                                     class="theme-switch-option"
                                     :class="{ 'active': lang === 'zh' }"
                                     @click="emit('change-lang', 'zh')"
                                 >
-                                    <view class="lang-switch-item">
+                                    <view class="flex-center gap-2 h-full w-full">
                                         <text class="lang-badge">文</text>
-                                        <text class="lang-text">中文</text>
+                                        <text class="text-sm font-medium">中文</text>
                                     </view>
                                 </view>
                                 <view 
@@ -116,21 +116,21 @@ const closeDrawer = () => {
                                     :class="{ 'active': lang === 'en' }"
                                     @click="emit('change-lang', 'en')"
                                 >
-                                    <view class="lang-switch-item">
+                                    <view class="flex-center gap-2 h-full w-full">
                                         <text class="lang-badge">A</text>
-                                        <text class="lang-text">English</text>
+                                        <text class="text-sm font-medium">English</text>
                                     </view>
                                 </view>
                             </view>
                         </view>
 
                         <!-- Option 2.6: TTS Toggle -->
-                        <view class="drawer-section">
-                            <text class="section-label">{{ i18n.ttsLabel }}</text>
-                            <view class="tts-toggle-card">
-                                <view class="tts-toggle-info">
-                                    <text class="tts-toggle-title">{{ i18n.ttsTitle }}</text>
-                                    <text class="tts-toggle-desc">{{ ttsDisabled ? i18n.ttsDisabledHint : i18n.ttsEnabledHint }}</text>
+                        <view class="mb-4">
+                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.ttsLabel }}</text>
+                            <view class="list-card-item min-h-[58px] bg-[var(--ej-bg-sub)] border-[var(--ej-border)]">
+                                <view class="flex flex-col gap-1 min-w-0">
+                                    <text class="text-sm font-bold text-[var(--ej-text-primary)]">{{ i18n.ttsTitle }}</text>
+                                    <text class="text-xs leading-[1.35] text-[var(--ej-text-muted)]">{{ ttsDisabled ? i18n.ttsDisabledHint : i18n.ttsEnabledHint }}</text>
                                 </view>
                                 <switch
                                     :checked="!ttsDisabled"
@@ -141,25 +141,25 @@ const closeDrawer = () => {
                         </view>
 
                         <!-- Option 3: Word List -->
-                        <view class="drawer-section">
-                            <text class="section-label">{{ i18n.wordListLabel }}</text>
-                            <view class="word-list-entry-card" @click="showSavedWordsList = true">
-                                <view class="entry-card-left">
-                                    <text class="entry-card-icon">📁</text>
-                                    <view class="entry-card-info">
-                                        <text class="entry-card-title">{{ i18n.savedWordsTitle }}</text>
-                                        <text class="entry-card-subtitle">{{ i18n.totalWordsCount(savedWords.length) }}</text>
+                        <view class="mb-4">
+                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.wordListLabel }}</text>
+                            <view class="list-card-item bg-[var(--ej-bg-sub)] border-[var(--ej-border)] active:opacity-80 cursor-pointer" @click="showSavedWordsList = true">
+                                <view class="flex items-center gap-3">
+                                    <text class="text-[22px]">📁</text>
+                                    <view class="flex flex-col">
+                                        <text class="text-sm font-bold text-[var(--ej-text-primary)]">{{ i18n.savedWordsTitle }}</text>
+                                        <text class="text-xs text-[var(--ej-text-muted)] mt-0.5">{{ i18n.totalWordsCount(savedWords.length) }}</text>
                                     </view>
                                 </view>
-                                <text class="entry-card-arrow">→</text>
+                                <text class="text-base font-bold text-[var(--ej-text-muted)]">→</text>
                             </view>
                         </view>
 
                         <!-- Option 4: Session progress info -->
-                        <view class="drawer-section">
-                            <text class="section-label">{{ i18n.progressLabel }}</text>
-                            <view class="progress-details">
-                                <text class="progress-info-text">{{ i18n.progressCount(wordNum) }}</text>
+                        <view class="mb-4">
+                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.progressLabel }}</text>
+                            <view class="list-card-item bg-[var(--ej-bg-sub)] border-[var(--ej-border)]">
+                                <text class="text-sm">{{ i18n.progressCount(wordNum) }}</text>
                                 <view class="reset-progress-btn" @click="emit('reset-progress')">{{ i18n.resetBtnText }}</view>
                             </view>
                         </view>
@@ -168,41 +168,41 @@ const closeDrawer = () => {
             </view>
 
             <!-- Word List Management View -->
-            <view v-else class="drawer-view-container">
-                <view class="drawer-header">
-                    <view class="drawer-header-left" @click="showSavedWordsList = false">
-                        <text class="drawer-back-arrow">←</text>
-                        <text class="drawer-title-sub">{{ i18n.backToSettings }}</text>
+            <view v-else class="flex flex-col w-full h-full overflow-hidden">
+                <view class="flex justify-between items-center mb-4">
+                    <view class="flex items-center gap-2 text-[var(--ej-color-brand)] cursor-pointer" @click="showSavedWordsList = false">
+                        <text>←</text>
+                        <text>{{ i18n.backToSettings }}</text>
                     </view>
-                    <text class="drawer-title">{{ i18n.wordListLabel }} ({{ savedWords.length }})</text>
-                    <view class="drawer-close-btn" @click="closeDrawer">✕</view>
+                    <text class="drawer-title-style">{{ i18n.wordListLabel }} ({{ savedWords.length }})</text>
+                    <view class="text-xl text-[var(--ej-text-sub)] cursor-pointer p-1" @click="closeDrawer">✕</view>
                 </view>
 
-                <view class="drawer-content">
-                    <scroll-view scroll-y="true" class="drawer-scroll-view">
-                        <view class="drawer-scroll-content">
-                            <view v-if="savedWords.length === 0" class="drawer-empty-state">
-                                <text class="drawer-empty-icon">📂</text>
-                                <text class="drawer-empty-text">{{ i18n.emptyListPrompt }}</text>
+                <view class="flex-1 overflow-hidden">
+                    <scroll-view scroll-y="true" class="flex-1 min-h-0 h-full">
+                        <view class="pr-3 box-border w-full">
+                            <view v-if="savedWords.length === 0" class="flex-col-center py-10 gap-3">
+                                <text class="text-[32px] opacity-50">📂</text>
+                                <text class="text-[13.5px] text-[var(--ej-text-muted)]">{{ i18n.emptyListPrompt }}</text>
                             </view>
-                            <view v-else class="saved-words-list">
+                            <view v-else class="flex flex-col gap-2 pb-5">
                                 <view 
                                     v-for="word in savedWords" 
                                     :key="word.w" 
-                                    class="saved-word-item"
+                                    class="list-card-item bg-[var(--ej-bg-sub)] border-[var(--ej-border)] active:opacity-85"
                                     @click="emit('view-saved-word', word)"
                                 >
-                                    <view class="saved-word-info-col">
-                                        <view class="saved-word-header-row">
-                                            <text class="saved-word-name">{{ word.w }}</text>
-                                            <text class="saved-word-phonetic">/{{ word.p }}/</text>
+                                    <view class="flex flex-col gap-1 flex-1 pr-3">
+                                        <view class="flex items-baseline gap-2">
+                                            <text class="text-base font-bold text-[var(--ej-text-primary)]">{{ word.w }}</text>
+                                            <text class="text-[12.5px] text-[var(--ej-text-muted)] font-mono">/{{ word.p }}/</text>
                                         </view>
-                                        <text class="saved-word-translation">
+                                        <text class="text-[13px] text-[var(--ej-text-secondary)] whitespace-nowrap overflow-hidden text-ellipsis">
                                             {{ word.t && word.t[0] ? `(${word.t[0][0]}) ${word.t[0][1]}` : '' }}
                                         </text>
                                     </view>
-                                    <view class="saved-word-delete-btn" @click.stop="emit('remove-saved-word', word.w)">
-                                        <text class="delete-icon-cross">✕</text>
+                                    <view class="w-7 h-7 rounded-full flex-center bg-[var(--ej-bg-card)] border border-solid border-[var(--ej-border)] shrink-0 active:scale-90" @click.stop="emit('remove-saved-word', word.w)">
+                                        <text class="text-xs text-red-500">✕</text>
                                     </view>
                                 </view>
                             </view>
@@ -256,97 +256,6 @@ const closeDrawer = () => {
     transform: translateY(0);
 }
 
-.drawer-view-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.drawer-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
-
-.drawer-header-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.drawer-back-arrow,
-.drawer-title-sub {
-    color: var(--ej-color-brand);
-}
-
-.drawer-title {
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-}
-
-.drawer-close-btn {
-    font-size: 20px;
-    color: var(--ej-text-sub);
-    cursor: pointer;
-    padding: 4px;
-}
-
-.drawer-section {
-    margin-bottom: 16px;
-}
-
-.section-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--ej-text-muted);
-    margin-bottom: 8px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
-
-.tts-toggle-card {
-    min-height: 58px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--ej-border);
-    background-color: var(--ej-bg-sub);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    box-sizing: border-box;
-}
-
-.tts-toggle-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
-.tts-toggle-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--ej-text-primary);
-}
-
-.tts-toggle-desc {
-    font-size: 12px;
-    line-height: 1.35;
-    color: var(--ej-text-muted);
-}
-
-.book-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-}
-
 .book-card {
     display: flex;
     flex-direction: row;
@@ -368,11 +277,6 @@ const closeDrawer = () => {
     font-weight: bold;
 }
 
-.book-card-name {
-    font-size: 14px;
-    text-align: center;
-}
-
 .book-card-count {
     font-size: 11px;
     font-weight: 600;
@@ -382,14 +286,6 @@ const closeDrawer = () => {
 
 .book-card.active .book-card-count {
     color: var(--ej-color-brand);
-}
-
-.theme-switch-container {
-    display: flex;
-    border-radius: 12px;
-    border: 1px solid var(--ej-border);
-    overflow: hidden;
-    background-color: var(--ej-bg-sub);
 }
 
 .theme-switch-option {
@@ -407,15 +303,6 @@ const closeDrawer = () => {
     color: var(--ej-color-brand);
     font-weight: bold;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.lang-switch-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 100%;
-    width: 100%;
 }
 
 .lang-badge {
@@ -438,72 +325,6 @@ const closeDrawer = () => {
     color: #FFFFFF;
 }
 
-.lang-text {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.word-list-entry-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--ej-bg-sub);
-    padding: 14px;
-    border-radius: 12px;
-    border: 1px solid var(--ej-border);
-    transition: all 0.2s;
-}
-.word-list-entry-card:active {
-    opacity: 0.8;
-}
-
-.entry-card-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.entry-card-icon {
-    font-size: 22px;
-}
-
-.entry-card-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.entry-card-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--ej-text-primary);
-}
-
-.entry-card-subtitle {
-    font-size: 12px;
-    color: var(--ej-text-muted);
-    margin-top: 2px;
-}
-
-.entry-card-arrow {
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--ej-text-muted);
-}
-
-.progress-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--ej-bg-sub);
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--ej-border);
-}
-
-.progress-info-text {
-    font-size: 14px;
-}
-
 .reset-progress-btn {
     font-size: 12px;
     font-weight: bold;
@@ -519,111 +340,5 @@ const closeDrawer = () => {
 }
 .reset-progress-btn:active {
     opacity: 0.8;
-}
-
-.drawer-scroll-view {
-    flex: 1;
-    min-height: 0;
-    height: 100%;
-}
-
-.drawer-scroll-content {
-    padding-right: 12px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.drawer-empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 0;
-    gap: 12px;
-}
-
-.drawer-empty-icon {
-    font-size: 32px;
-    opacity: 0.5;
-}
-
-.drawer-empty-text {
-    font-size: 13.5px;
-    color: var(--ej-text-muted);
-}
-
-.saved-words-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-bottom: 20px;
-}
-
-.saved-word-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--ej-bg-sub);
-    border: 1px solid var(--ej-border);
-    border-radius: 12px;
-    padding: 12px;
-    transition: all 0.2s;
-}
-.saved-word-item:active {
-    opacity: 0.85;
-}
-
-.saved-word-info-col {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    padding-right: 12px;
-}
-
-.saved-word-header-row {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-}
-
-.saved-word-name {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--ej-text-primary);
-}
-
-.saved-word-phonetic {
-    font-size: 12.5px;
-    color: var(--ej-text-muted);
-    font-family: monospace;
-}
-
-.saved-word-translation {
-    font-size: 13px;
-    color: var(--ej-text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.saved-word-delete-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--ej-bg-card);
-    border: 1px solid var(--ej-border);
-    flex-shrink: 0;
-}
-.saved-word-delete-btn:active {
-    transform: scale(0.9);
-}
-
-.delete-icon-cross {
-    font-size: 12px;
-    color: #EF4444;
 }
 </style>

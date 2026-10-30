@@ -9,7 +9,20 @@ import { useWordAudio } from "@/composables/useWordAudio";
 import { useFloatingGear } from "@/composables/useFloatingGear";
 import type { WordItem, WordBookMeta, WordAnatomy } from "@/types/word";
 
-const isDark = ref<'dark' | 'light'>('light')
+const getInitialTheme = (): 'dark' | 'light' => {
+    try {
+        const savedTheme = uni.getStorageSync('theme');
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            return savedTheme;
+        }
+        const systemTheme = uni.getSystemInfoSync().theme;
+        return systemTheme === 'dark' ? 'dark' : 'light';
+    } catch {
+        return 'light';
+    }
+};
+
+const isDark = ref<'dark' | 'light'>(getInitialTheme());
 const wordObj = ref<WordItem | null>(null);
 const scrollTop = ref(0);
 const detailScrollTop = ref(0);
@@ -555,13 +568,7 @@ const initData = () => {
     // Explicitly reset drawer states on initialization to prevent simulator cache issues
     showDrawer.value = false;
 
-    const savedTheme = uni.getStorageSync('theme');
-    if (savedTheme === 'dark' || savedTheme === 'light') {
-        isDark.value = savedTheme;
-    } else {
-        const systemTheme = uni.getSystemInfoSync().theme;
-        isDark.value = systemTheme === 'dark' ? 'dark' : 'light';
-    }
+    isDark.value = getInitialTheme();
     const savedLang = uni.getStorageSync('lang');
     if (savedLang === 'zh' || savedLang === 'en') {
         lang.value = savedLang;

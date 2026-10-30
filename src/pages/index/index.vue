@@ -17,6 +17,7 @@ const hasDetailOverflow = ref(false);
 const wordBook = ref<WordBookMeta | null>(null);
 const studyMode = ref<'quiz' | 'browse'>('quiz');
 const knowFlag = ref(false); // Controls whether the translations are revealed
+const isRevealing = ref(false); // Controls camera focus animation exclusively on intentional tap
 const preventClick = ref(false);
 const { playFlag, playWord, stopAudio } = useWordAudio();
 const ttsDisabled = ref(false);
@@ -183,7 +184,11 @@ const nextWord = () => {
 
 const handleCardTap = () => {
     if (preventClick.value) return;
+    isRevealing.value = true;
     knowFlag.value = true;
+    setTimeout(() => {
+        isRevealing.value = false;
+    }, 320);
 };
 
 const updateNavBarColor = () => {
@@ -313,6 +318,7 @@ const nextWordDirectional = (dir: 'up' | 'down') => {
         }
     }
 
+    isRevealing.value = false;
     if (dir === 'up') {
         knowFlag.value = studyMode.value === 'browse';
     }
@@ -457,6 +463,7 @@ const onCardTouchEnd = () => {
         bgCardTransitionClass.value = 'prev-card-to-active-instant';
         
         setTimeout(() => {
+            isRevealing.value = false;
             historyIndex.value -= 1;
             wordObj.value = historyWords.value[historyIndex.value];
             knowFlag.value = true;
@@ -655,6 +662,14 @@ onUnmounted(() => {
                           <text class="section-toggle-icon">+</text>
                       </view>
                   </view>
+
+                  <!-- Word Anatomy Section -->
+                  <view v-if="bgWordObj?.w" class="detail-section mb-3 pb-0">
+                      <view class="detail-section-header">
+                          <text class="section-header-title">{{ i18n.wordAnatomyTitle }}</text>
+                          <text class="section-toggle-icon">+</text>
+                      </view>
+                  </view>
               </view>
 
               <!-- Bottom subtle hint mock (visible when !bgKnowFlag) -->
@@ -749,7 +764,10 @@ onUnmounted(() => {
                 scroll-y="true"
                 :scroll-top="scrollTop"
                 class="card-scroll-view w-full flex-1 min-w-0 card-details-content"
-                :class="{ 'card-details-blurred': !knowFlag }"
+                :class="{ 
+                    'card-details-blurred': !knowFlag,
+                    'card-details-focusing': isRevealing 
+                }"
                 @scroll="onDetailScroll"
                 @touchstart="onDetailTouchStart"
                 @touchmove="onDetailTouchMove"
@@ -1068,7 +1086,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 /* Card details camera lens focus and blur transitions */
-.card-details-content {
+.card-details-focusing {
     transition: filter 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
     will-change: filter, opacity;
 }

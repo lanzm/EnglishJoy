@@ -617,89 +617,52 @@ onUnmounted(() => {
           <!-- Divider -->
           <view class="card-divider shrink-0"></view>
 
-          <!-- Scrollable details container (Static mock) -->
+          <!-- Scrollable details container (Background card) -->
           <view 
             v-if="bgWordObj" 
             class="relative flex flex-col justify-between flex-1 overflow-hidden"
           >
-              <!-- 1. Realistic Structured Skeleton Background Mock (When !bgKnowFlag) -->
-              <template v-if="!bgKnowFlag">
-                  <view class="w-full flex-1 pr-1 box-border opacity-35 select-none pointer-events-none">
-                      <!-- Section 1: Definitions Skeleton -->
-                      <view class="detail-section mb-3">
-                          <view class="detail-section-header">
-                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
-                          </view>
-                          <view class="px-2 pb-3 box-border flex flex-col gap-3">
-                              <view class="flex flex-col gap-1.5">
-                                  <view class="w-14 h-3 rounded bg-[var(--ej-border)]"></view>
-                                  <view class="w-4/5 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              </view>
-                              <view class="flex flex-col gap-1.5">
-                                  <view class="w-12 h-3 rounded bg-[var(--ej-border)]"></view>
-                                  <view class="w-3/5 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              </view>
-                          </view>
+              <view 
+                class="w-full flex-1 pr-1 box-border select-none pointer-events-none overflow-hidden card-details-content"
+                :class="{ 'card-details-blurred': !bgKnowFlag }"
+              >
+                  <!-- Definitions -->
+                  <view class="detail-section mb-3">
+                      <view class="detail-section-header">
+                          <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
+                          <text class="section-toggle-icon">-</text>
                       </view>
-
-                      <!-- Section 2: Examples Skeleton -->
-                      <view class="detail-section mb-3 pb-0">
-                          <view class="detail-section-header">
-                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
-                          </view>
-                      </view>
-
-                      <!-- Section 3: Word Anatomy Skeleton -->
-                      <view class="detail-section mb-3">
-                          <view class="detail-section-header">
-                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
+                      <view class="px-2 pb-3 box-border">
+                          <view class="flex flex-col gap-3">
+                              <view
+                                v-for="(item, index) in bgWordObj.t"
+                                :key="index"
+                                class="flex flex-col gap-0.5"
+                              >
+                                  <text class="item-number-prefix">
+                                      {{ index + 1 }}.<template v-if="formatDefinitionPos(item[0])"> ({{ formatDefinitionPos(item[0]) }})</template>
+                                  </text>
+                                  <text class="item-definition-content">{{ formatDefinitionContent(item) }}</text>
+                              </view>
                           </view>
                       </view>
                   </view>
 
-                  <!-- Bottom subtle hint mock -->
-                  <view class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
-                      <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
-                          💡 {{ i18n.quizPrompt }}
-                      </text>
-                  </view>
-              </template>
-
-              <!-- 2. Real Content Mock (When bgKnowFlag is true) -->
-              <template v-else>
-                  <view class="w-full flex-1 pr-1 box-border select-none pointer-events-none overflow-hidden">
-                      <view class="detail-section mb-3">
-                          <view class="detail-section-header">
-                              <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
-                              <text class="section-toggle-icon">-</text>
-                          </view>
-                          <view class="px-2 pb-3 box-border">
-                              <view class="flex flex-col gap-3">
-                                  <view
-                                    v-for="(item, index) in bgWordObj.t"
-                                    :key="index"
-                                    class="flex flex-col gap-0.5"
-                                  >
-                                      <text class="item-number-prefix">
-                                          {{ index + 1 }}.<template v-if="formatDefinitionPos(item[0])"> ({{ formatDefinitionPos(item[0]) }})</template>
-                                      </text>
-                                      <text class="item-definition-content">{{ formatDefinitionContent(item) }}</text>
-                                  </view>
-                              </view>
-                          </view>
-                      </view>
-
-                      <view v-if="bgWordObj?.s && bgWordObj.s.length > 0" class="detail-section mb-3 pb-0">
-                          <view class="detail-section-header">
-                              <text class="section-header-title">{{ i18n.examplesTitle }}</text>
-                              <text class="section-toggle-icon">+</text>
-                          </view>
+                  <!-- Examples -->
+                  <view v-if="bgWordObj?.s && bgWordObj.s.length > 0" class="detail-section mb-3 pb-0">
+                      <view class="detail-section-header">
+                          <text class="section-header-title">{{ i18n.examplesTitle }}</text>
+                          <text class="section-toggle-icon">+</text>
                       </view>
                   </view>
-              </template>
+              </view>
+
+              <!-- Bottom subtle hint mock (visible when !bgKnowFlag) -->
+              <view v-if="!bgKnowFlag" class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
+                  <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
+                      💡 {{ i18n.quizPrompt }}
+                  </text>
+              </view>
           </view>
 
           <!-- Footer Buttons (Static mock) -->
@@ -771,72 +734,22 @@ onUnmounted(() => {
           <!-- Divider -->
           <view v-if="wordObj && !loading" class="card-divider shrink-0"></view>
 
-          <!-- Details container with Scheme B static skeleton vs revealed real content -->
+          <!-- Details container with real content camera focus blur -->
           <view
             v-if="wordObj && !loading"
-            class="relative flex flex-1 w-full min-h-0 box-border overflow-hidden"
+            class="relative flex flex-col justify-between flex-1 w-full min-h-0 box-border overflow-hidden cursor-pointer"
+            @click="!knowFlag && handleCardTap()"
+            @touchstart="!knowFlag ? onCardTouchStart($event) : undefined"
+            @touchmove="!knowFlag ? onCardTouchMove($event) : undefined"
+            @touchend="!knowFlag ? onCardTouchEnd() : undefined"
           >
-              <!-- 1. Static Structured Skeleton (Visible when !knowFlag: calm, static, mirrors revealed sections) -->
-              <view
-                v-if="!knowFlag"
-                class="absolute inset-0 flex flex-col justify-between w-full h-full cursor-pointer z-10"
-                @click="handleCardTap"
-                @touchstart="onCardTouchStart"
-                @touchmove="onCardTouchMove"
-                @touchend="onCardTouchEnd"
-              >
-                  <!-- Background Static Skeleton Bars (Matches revealed sections layout) -->
-                  <view class="w-full flex-1 pr-1 box-border opacity-35 select-none pointer-events-none">
-                      <!-- Section 1: Definitions Skeleton -->
-                      <view class="detail-section mb-3">
-                          <view class="detail-section-header">
-                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
-                          </view>
-                          <view class="px-2 pb-3 box-border flex flex-col gap-3">
-                              <view class="flex flex-col gap-1.5">
-                                  <view class="w-14 h-3 rounded bg-[var(--ej-border)]"></view>
-                                  <view class="w-4/5 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              </view>
-                              <view class="flex flex-col gap-1.5">
-                                  <view class="w-12 h-3 rounded bg-[var(--ej-border)]"></view>
-                                  <view class="w-3/5 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              </view>
-                          </view>
-                      </view>
-
-                      <!-- Section 2: Examples Skeleton -->
-                      <view class="detail-section mb-3 pb-0">
-                          <view class="detail-section-header">
-                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
-                          </view>
-                      </view>
-
-                      <!-- Section 3: Word Anatomy Skeleton -->
-                      <view class="detail-section mb-3">
-                          <view class="detail-section-header">
-                              <view class="w-16 h-3.5 rounded bg-[var(--ej-border)]"></view>
-                              <view class="w-3.5 h-3.5 rounded-full bg-[var(--ej-border)]"></view>
-                          </view>
-                      </view>
-                  </view>
-
-                  <!-- Bottom subtle hint (Clean, natural, no floating sticker in the middle) -->
-                  <view class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
-                      <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
-                          💡 {{ i18n.quizPrompt }}
-                      </text>
-                  </view>
-              </view>
-
-              <!-- 2. Real Interactive Scrollable Details List (Revealed when knowFlag is true) -->
+              <!-- Scrollable details list with camera lens blur/focus transition -->
               <scroll-view
-                v-else
                 :key="'detail-' + wordObj.w"
                 scroll-y="true"
                 :scroll-top="scrollTop"
-                class="card-scroll-view w-full h-full min-w-0 flex-1 transition-opacity duration-200"
+                class="card-scroll-view w-full flex-1 min-w-0 card-details-content"
+                :class="{ 'card-details-blurred': !knowFlag }"
                 @scroll="onDetailScroll"
                 @touchstart="onDetailTouchStart"
                 @touchmove="onDetailTouchMove"
@@ -923,6 +836,16 @@ onUnmounted(() => {
                       </view>
                   </view>
               </scroll-view>
+
+              <!-- Bottom subtle hint (Clean, natural, visible only in quiz mode when !knowFlag) -->
+              <view 
+                v-if="!knowFlag" 
+                class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none"
+              >
+                  <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
+                      💡 {{ i18n.quizPrompt }}
+                  </text>
+              </view>
           </view>
 
           <!-- Footer Buttons (Fixed inside the bottom of the card) -->
@@ -1142,6 +1065,19 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     padding-right: 0;
     width: 100%;
     box-sizing: border-box;
+}
+
+/* Card details camera lens focus and blur transitions */
+.card-details-content {
+    transition: filter 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease;
+    will-change: filter, opacity;
+}
+
+.card-details-blurred {
+    filter: blur(9px);
+    opacity: 0.6;
+    user-select: none;
+    pointer-events: none;
 }
 
 /* Custom premium thin scrollbar styling */

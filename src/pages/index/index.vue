@@ -955,8 +955,8 @@ onShareTimeline(() => {
                           <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
                           <text class="section-toggle-icon">-</text>
                       </view>
-                      <view class="px-2 pb-3 box-border">
-                          <view class="flex flex-col gap-3">
+                      <view class="detail-section-body">
+                          <view class="flex flex-col gap-2.5">
                               <view
                                 v-for="(item, index) in bgWordObj.t"
                                 :key="index"
@@ -972,7 +972,7 @@ onShareTimeline(() => {
                   </view>
 
                   <!-- Examples -->
-                  <view v-if="bgWordObj?.s && bgWordObj.s.length > 0" class="detail-section mb-3 pb-0">
+                  <view v-if="bgWordObj?.s && bgWordObj.s.length > 0" class="detail-section mb-3">
                       <view class="detail-section-header">
                           <text class="section-header-title">{{ i18n.examplesTitle }}</text>
                           <text class="section-toggle-icon">+</text>
@@ -980,7 +980,7 @@ onShareTimeline(() => {
                   </view>
 
                   <!-- Word Anatomy Section -->
-                  <view v-if="bgWordObj?.w" class="detail-section mb-3 pb-0">
+                  <view v-if="bgWordObj?.w" class="detail-section mb-3">
                       <view class="detail-section-header">
                           <text class="section-header-title">{{ i18n.wordAnatomyTitle }}</text>
                           <text class="section-toggle-icon">+</text>
@@ -1101,8 +1101,8 @@ onShareTimeline(() => {
                               <text class="section-header-title">{{ i18n.definitionsTitle }}</text>
                               <text class="section-toggle-icon">{{ detailSections.definitions ? '-' : '+' }}</text>
                           </view>
-                          <view v-if="detailSections.definitions" class="px-2 pb-3 box-border">
-                              <view class="flex flex-col gap-3">
+                          <view v-if="detailSections.definitions" class="detail-section-body">
+                              <view class="flex flex-col gap-2.5">
                               <view
                                 v-for="(item, index) in wordObj?.t"
                                 :key="index"
@@ -1118,17 +1118,17 @@ onShareTimeline(() => {
                       </view>
 
                       <!-- Examples / Translations -->
-                      <view v-if="wordObj?.s && wordObj.s.length > 0" class="detail-section mb-3 pb-0">
+                      <view v-if="wordObj?.s && wordObj.s.length > 0" class="detail-section mb-3">
                           <view class="detail-section-header" @click.stop="toggleDetailSection('examples')">
                               <text class="section-header-title">{{ i18n.examplesTitle }}</text>
                               <text class="section-toggle-icon">{{ detailSections.examples ? '-' : '+' }}</text>
                           </view>
-                          <view v-if="detailSections.examples" class="px-2 pb-3 box-border">
-                              <view class="flex flex-col gap-3">
+                          <view v-if="detailSections.examples" class="detail-section-body">
+                              <view class="example-list">
                               <view
                                 v-for="(item, index) in wordObj.s"
                                 :key="index"
-                                class="example-item-box"
+                                class="example-item"
                               >
                                   <text class="example-en-text">{{ item[0] }}</text>
                                   <text class="example-cn-text">{{ item[1] }}</text>
@@ -1143,8 +1143,8 @@ onShareTimeline(() => {
                               <text class="section-header-title">{{ i18n.wordAnatomyTitle }}</text>
                               <text class="section-toggle-icon">{{ detailSections.anatomy ? '-' : '+' }}</text>
                           </view>
-                          <view v-if="detailSections.anatomy" class="px-2 pb-3 box-border">
-                              <view class="flex flex-wrap gap-3">
+                          <view v-if="detailSections.anatomy" class="detail-section-body">
+                              <view class="flex flex-wrap gap-2">
                               <view class="anatomy-card-item">
                                   <text class="anatomy-item-label">{{ i18n.difficultyLabel }}</text>
                                   <view class="flex items-center gap-0.5">
@@ -1481,15 +1481,16 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 .detail-section {
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     background: var(--ej-bg-section);
     border: 1px solid var(--ej-border-section);
 }
 
 .detail-section-header {
+    height: 44px;
     min-height: 44px;
-    padding: 0 8px;
+    padding: 0 14px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -1497,14 +1498,14 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 .section-toggle-icon {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    font-weight: 800;
+    font-size: 15px;
+    font-weight: 700;
     line-height: 1;
     flex-shrink: 0;
     color: var(--ej-color-brand);
@@ -1513,13 +1514,19 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 
 /* Definitions List */
 .section-header-title {
-    display: block;
-    font-size: 14px;
-    font-weight: 800;
+    display: flex;
+    align-items: center;
+    font-size: 13.5px;
+    font-weight: 700;
     color: var(--ej-text-muted);
-    margin-bottom: 12px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: 0.03em;
+}
+
+.detail-section-body {
+    padding: 2px 14px 14px 14px;
+    box-sizing: border-box;
 }
 
 .item-number-prefix {
@@ -1529,7 +1536,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 .item-definition-content {
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 600;
     line-height: 1.5;
     color: var(--ej-text-primary);
@@ -1537,11 +1544,11 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 
 /* Word Anatomy Section */
 .anatomy-card-item {
-    flex: 1 1 calc(50% - 6px);
+    flex: 1 1 calc(50% - 4px);
     display: flex;
     flex-direction: column;
-    padding: 12px 14px;
-    border-radius: 16px;
+    padding: 8px 10px;
+    border-radius: 8px;
     box-sizing: border-box;
     background: var(--ej-border-section);
     border: 1px solid var(--ej-border-section);
@@ -1556,7 +1563,7 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     color: var(--ej-text-sub);
 }
 
@@ -1578,26 +1585,32 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 /* Examples Section */
-.example-item-box {
-    border-radius: 12px;
-    padding: 14px;
+.example-list {
     display: flex;
     flex-direction: column;
-    background-color: var(--ej-bg-sub);
-    transition: background-color 0.2s;
+    gap: 10px;
+}
+
+.example-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.example-item + .example-item {
+    padding-top: 10px;
+    border-top: 1px dashed var(--ej-border-section);
 }
 
 .example-en-text {
-    font-size: 15px;
+    font-size: 14.5px;
     font-weight: 600;
     line-height: 1.45;
-    padding-right: 12px;
     color: var(--ej-text-primary);
 }
 
 .example-cn-text {
-    font-size: 13.5px;
-    margin-top: 6px;
+    font-size: 12.5px;
     line-height: 1.4;
     color: var(--ej-text-secondary);
 }

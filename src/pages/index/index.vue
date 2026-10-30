@@ -804,7 +804,7 @@ onUnmounted(() => {
                 @touchmove="onDetailTouchMove"
                 @touchend="onDetailTouchEnd"
               >
-                  <view class="px-5 pr-6 box-border w-full">
+                  <view class="px-5 box-border w-full">
                       <!-- Definitions -->
                       <view class="detail-section mb-3">
                           <view class="detail-section-header" @click.stop="toggleDetailSection('definitions')">

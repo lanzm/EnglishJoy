@@ -240,27 +240,23 @@ const setTtsEnabled = (enabled: boolean) => {
 };
 
 const loadWordBook = () => {
-    loading.value = true;
-    wordObj.value = null;
     wordBook.value = commonUtil.getCurrWordBook();
     wordList.value = [];
     historyWords.value = [];
     historyIndex.value = -1;
     preloadedNextWord.value = null;
 
-    setTimeout(() => {
-        const bookVal = wordBook.value?.value;
-        const data = bookVal ? wordBooksData[bookVal] : null;
-        if (data && data.length > 0) {
-            wordList.value = data;
-            randomWord();
-            updatePreloadedNextWord();
-            syncBgCard();
-        } else {
-            commonUtil.msg(i18n.value.loadFailAlert, "error");
-        }
-        loading.value = false;
-    }, 150);
+    const bookVal = wordBook.value?.value;
+    const data = bookVal ? wordBooksData[bookVal] : null;
+    if (data && data.length > 0) {
+        wordList.value = data;
+        randomWord();
+        updatePreloadedNextWord();
+        syncBgCard();
+    } else {
+        commonUtil.msg(i18n.value.loadFailAlert, "error");
+    }
+    loading.value = false;
 };
 
 // Raw, non-animated word loading (used on initialization)

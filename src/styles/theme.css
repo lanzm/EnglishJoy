@@ -1,5 +1,6 @@
 /* EnglishJoy Global Design Tokens */
 
+page,
 :root,
 .light,
 .page-container.light,
@@ -22,7 +23,7 @@
 
   /* Border colors */
   --ej-border: #E2E8F0;
-  --ej-border-card: #FFFFFF;
+  --ej-border-card: #E2E8F0;
   --ej-border-section: rgba(15, 23, 42, 0.06);
 
   /* Brand & Accent colors */
@@ -32,8 +33,8 @@
   --ej-color-brand-light: rgba(37, 99, 235, 0.08);
 
   /* Shadows */
-  --ej-shadow-card: 0 20px 40px -10px rgba(148, 163, 184, 0.3);
-  --ej-shadow-card-bg: 0 10px 20px -10px rgba(148, 163, 184, 0.2);
+  --ej-shadow-card: 0 14px 32px -8px rgba(100, 116, 139, 0.22);
+  --ej-shadow-card-bg: 0 8px 16px -6px rgba(100, 116, 139, 0.16);
   --ej-shadow-gear: 0 6px 16px rgba(100, 116, 139, 0.2);
 }
 

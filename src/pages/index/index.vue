@@ -585,12 +585,25 @@ const initData = () => {
     loadWordBook();
 }
 
+const onSystemThemeChange = (res: any) => {
+    const savedTheme = uni.getStorageSync('theme');
+    // If user hasn't explicitly set a preference, follow system
+    if (savedTheme !== 'dark' && savedTheme !== 'light') {
+        if (res.theme === 'dark' || res.theme === 'light') {
+            isDark.value = res.theme;
+            updateNavBarColor();
+        }
+    }
+};
+
 onMounted(() => {
     initData();
+    uni.onThemeChange(onSystemThemeChange);
 });
 
 onUnmounted(() => {
     stopAudio();
+    uni.offThemeChange(onSystemThemeChange);
 });
 </script>
 
@@ -605,7 +618,7 @@ onUnmounted(() => {
         :style="bgCardStyle"
       >
           <!-- Word & Audio Section (Fixed) -->
-          <view v-if="bgWordObj" class="mb-3 shrink-0">
+          <view v-if="bgWordObj" class="px-5 mb-3 shrink-0">
               <view class="flex justify-between items-center">
                   <view class="flex flex-col gap-1 flex-1 min-w-0">
                       <text class="word-large-text">{{ bgWordObj.w }}</text>
@@ -630,15 +643,17 @@ onUnmounted(() => {
           </view>
 
           <!-- Divider -->
-          <view class="card-divider shrink-0"></view>
+          <view class="px-5 w-full box-border shrink-0">
+              <view class="card-divider"></view>
+          </view>
 
           <!-- Scrollable details container (Background card) -->
           <view 
             v-if="bgWordObj" 
-            class="relative flex flex-col justify-between flex-1 overflow-hidden"
+            class="relative flex flex-col justify-between flex-1 w-full min-h-0 box-border overflow-hidden"
           >
               <view 
-                class="w-full flex-1 pr-1 box-border select-none pointer-events-none overflow-hidden card-details-content"
+                class="w-full flex-1 px-5 box-border select-none pointer-events-none overflow-hidden card-details-content"
                 :class="{ 'card-details-blurred': !bgKnowFlag }"
               >
                   <!-- Definitions -->
@@ -681,7 +696,7 @@ onUnmounted(() => {
               </view>
 
               <!-- Bottom subtle hint mock (visible when !bgKnowFlag && showQuizPrompt) -->
-              <view v-if="!bgKnowFlag && showQuizPrompt" class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
+              <view v-if="!bgKnowFlag && showQuizPrompt" class="flex items-center justify-center gap-1.5 py-1.5 px-5 shrink-0 pointer-events-none">
                   <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
                       💡 {{ i18n.quizPrompt }}
                   </text>
@@ -689,7 +704,7 @@ onUnmounted(() => {
           </view>
 
           <!-- Footer Buttons (Static mock) -->
-          <view class="mt-4 shrink-0">
+          <view class="mt-4 px-5 shrink-0">
               <view class="w-full">
                   <view class="card-btn btn-primary text-base">{{ i18n.nextBtn }}</view>
               </view>
@@ -702,7 +717,7 @@ onUnmounted(() => {
         :class="[cardTransitionClass]"
         :style="cardStyle"
       >
-          <view v-if="loading || !wordObj" class="flex flex-col h-full w-full box-border flex-1">
+          <view v-if="loading || !wordObj" class="flex flex-col h-full w-full box-border flex-1 px-5">
               <view class="flex flex-col items-center justify-center gap-3 mb-7 pt-2.5">
                   <view class="skeleton-shimmer w-[160px] h-[36px] rounded-md"></view>
                   <view class="skeleton-shimmer w-[100px] h-[18px] rounded"></view>
@@ -726,7 +741,7 @@ onUnmounted(() => {
           <!-- Word & Audio Section (Fixed) -->
           <view 
             v-else
-            class="mb-3 shrink-0"
+            class="px-5 mb-3 shrink-0"
             @touchstart="onCardTouchStart"
             @touchmove="onCardTouchMove"
             @touchend="onCardTouchEnd"
@@ -755,7 +770,9 @@ onUnmounted(() => {
           </view>
 
           <!-- Divider -->
-          <view v-if="wordObj && !loading" class="card-divider shrink-0"></view>
+          <view v-if="wordObj && !loading" class="px-5 w-full box-border shrink-0">
+              <view class="card-divider"></view>
+          </view>
 
           <!-- Details container with real content camera focus blur -->
           <view
@@ -781,7 +798,7 @@ onUnmounted(() => {
                 @touchmove="onDetailTouchMove"
                 @touchend="onDetailTouchEnd"
               >
-                  <view class="pr-1 box-border w-full">
+                  <view class="px-5 pr-6 box-border w-full">
                       <!-- Definitions -->
                       <view class="detail-section mb-3">
                           <view class="detail-section-header" @click.stop="toggleDetailSection('definitions')">
@@ -866,7 +883,7 @@ onUnmounted(() => {
               <!-- Bottom subtle hint (Clean, natural, visible only in quiz mode when !knowFlag && showQuizPrompt) -->
               <view 
                 v-if="!knowFlag && showQuizPrompt" 
-                class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none"
+                class="flex items-center justify-center gap-1.5 py-1.5 px-5 shrink-0 pointer-events-none"
               >
                   <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
                       💡 {{ i18n.quizPrompt }}
@@ -877,7 +894,7 @@ onUnmounted(() => {
           <!-- Footer Buttons (Fixed inside the bottom of the card) -->
           <view 
             v-if="wordObj && !loading"
-            class="mt-4 shrink-0"
+            class="mt-4 px-5 shrink-0"
             @touchstart="onCardTouchStart"
             @touchmove="onCardTouchMove"
             @touchend="onCardTouchEnd"
@@ -966,17 +983,22 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     max-width: 400px;
     height: 92vh;
     border-radius: 18px;
-    padding: 28px 20px;
+    padding: 28px 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-sizing: border-box;
     overflow: hidden;
     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease, color 0.3s;
+    background-color: #FFFFFF;
     background-color: var(--ej-bg-card);
     border: 1px solid var(--ej-border-card);
     box-shadow: var(--ej-shadow-card);
     color: var(--ej-text-primary);
+}
+
+.dark .app-card {
+    background-color: #18181B;
 }
 
 /* Background Stack Card */
@@ -990,12 +1012,13 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     max-width: 400px;
     height: 92vh;
     border-radius: 18px;
-    padding: 28px 20px;
+    padding: 28px 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-sizing: border-box;
     overflow: hidden;
+    background-color: #FFFFFF;
     background-color: var(--ej-bg-card-bg);
     border: 1px solid var(--ej-border-card);
     box-shadow: var(--ej-shadow-card-bg);
@@ -1006,6 +1029,10 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     opacity: 0.85;
     z-index: 5;
     pointer-events: none;
+}
+
+.dark .app-card-bg {
+    background-color: #18181B;
 }
 
 /* Word Info Top Section */
@@ -1100,10 +1127,17 @@ view, text, button, image, scroll-view, movable-area, movable-view {
 }
 
 .card-details-blurred {
-    filter: blur(9px);
-    opacity: 0.6;
+    filter: blur(10px);
+    opacity: 0.7;
     user-select: none;
     pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000000 0%, #000000 45%, rgba(0, 0, 0, 0.6) 70%, rgba(0, 0, 0, 0.2) 88%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000000 0%, #000000 45%, rgba(0, 0, 0, 0.6) 70%, rgba(0, 0, 0, 0.2) 88%, transparent 100%);
+}
+
+.card-details-blurred .detail-section {
+    background: transparent !important;
+    border-color: transparent !important;
 }
 
 /* Custom premium thin scrollbar styling */

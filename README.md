@@ -1,160 +1,89 @@
 <div align="center">
 
-<img src="docs/images/logo-blue-white.png" width="110" alt="EnglishJoy Logo" style="border-radius: 24px; box-shadow: 0 8px 24px rgba(43, 130, 246, 0.25);" /><br/>
+<img src="docs/images/logo-blue-white.png" width="76" alt="EnglishJoy Logo" style="border-radius: 16px;" />
 
-# 📱 EnglishJoy
-### — 无广告 · 无登录 · 打开即用 · 纯粹卡片背单词 —
+# EnglishJoy
+**纯粹 · 极简 · 离线的卡片背单词微信小程序**
 
 [![Platform](https://img.shields.io/badge/Platform-WeChat%20MiniProgram-07C160?style=flat-square&logo=wechat&logoColor=white)](https://mp.weixin.qq.com/)
-[![Framework](https://img.shields.io/badge/Framework-Uni--App%20(Vue3)-2B9939?style=flat-square&logo=vue.js&logoColor=white)](https://uniapp.dcloud.net.cn/)
-[![Language](https://img.shields.io/badge/Language-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Styling](https://img.shields.io/badge/Styling-UnoCSS-333333?style=flat-square&logo=unocss&logoColor=white)](https://unocss.dev/)
-[![Offline](https://img.shields.io/badge/Status-Offline--First-orange?style=flat-square)](https://github.com/lanzm/EnglishJoy)
+[![Uni-App](https://img.shields.io/badge/Uni--App-Vue3%20%2B%20TS-2B9939?style=flat-square&logo=vue.js&logoColor=white)](https://uniapp.dcloud.net.cn/)
+[![Size](https://img.shields.io/badge/Size-1.75MB%20(<2MB)-success?style=flat-square)](#-快速开始与自主部署)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
----
-
-**EnglishJoy** 是一款专注于高效记忆的**极简卡片背单词**微信小程序。  
-支持**完全自主部署**，让你拥有 100% 属于自己的背单词私有小程序。
-
-摒弃任何社交、积分、任务、PK 等繁杂花哨的干扰，回归记忆卡片（Flashcards）最纯粹的本源。通过**像刷短视频一样流畅的上下滑手势刷单词**，提供绝对专注、秒级启动、**完全离线**的英语记忆空间，**特别适合需要集中、高频、大量记忆词汇的快速突破场景**。
-
-<img src="docs/images/wechat-mp-qrcode.jpg" width="160" alt="WeChat MiniProgram QR Code"/><br/>
-<sub><b>微信扫码 即可体验</b></sub>
-
-[💡 提交 Bug 与建议](https://github.com/lanzm/EnglishJoy/issues) · [🎨 品牌与视觉资源](docs/BRAND.md) · [📖 词书资源说明](#-词书资源说明) · [🛠️ 开发者运行部署](#-开发者运行与部署)
-
 </div>
 
 ---
 
-## 📸 视觉预览 (Visual Preview)
-
-<div align="center">
-  <table border="0">
-    <tr>
-      <td align="center" valign="bottom">
-        <img src="docs/images/screenshot-home.jpg" width="160" alt="Card View Light"/><br/>
-        <sub><b>卡片主界面 (Light)</b></sub>
-      </td>
-      <td align="center" valign="bottom">
-        <img src="docs/images/screenshot-detail.jpg" width="160" alt="Detail View"/><br/>
-        <sub><b>释义与剖析 (Detail)</b></sub>
-      </td>
-      <td align="center" valign="bottom">
-        <img src="docs/images/screenshot-settings.jpg" width="160" alt="Settings Light"/><br/>
-        <sub><b>设置菜单 (Light)</b></sub>
-      </td>
-      <td align="center" valign="bottom">
-        <img src="docs/images/screenshot-dark-settings.jpg" width="160" alt="Settings Dark"/><br/>
-        <sub><b>设置菜单 (Dark)</b></sub>
-      </td>
-    </tr>
-  </table>
-</div>
+<table border="0" width="100%">
+  <tr>
+    <td width="72%" valign="middle">
+      <p><b>EnglishJoy</b>（小程序名称：<b>EnglishJoyApp</b>）是一款回归记忆卡片（Flashcards）本质的背单词工具。像刷短视频一样上下滑动卡片，带给你专注顺滑的背词心流。</p>
+      <ul>
+        <li>⚡ <b>开屏即用</b>：无任何广告插播、无社交打卡、无需登录注册</li>
+        <li>📦 <b>真·纯离线</b>：内置四级、六级、考研、雅思词库，断网随心背</li>
+        <li>📱 <b>双刷词模式</b>：自测对焦遮挡模式 + 速览高效扫词模式自由切换</li>
+        <li>🎓 <b>学术构词剖析</b>：音节数智能测算、1~5 星难度评估、派生词缀拆解</li>
+        <li>🌓 <b>深浅色与双语</b>：跟随系统暗黑模式，支持中英双语即时切换</li>
+      </ul>
+    </td>
+    <td width="28%" align="center" valign="middle">
+      <img src="docs/images/wechat-mp-qrcode.jpg" width="130" alt="WeChat MiniProgram QR Code" style="border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" /><br/>
+      <sub>📱 <b>微信扫码体验</b></sub><br/>
+      <sub><small>EnglishJoyApp</small></sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 🌟 核心特性 (Key Features)
+## 📖 内置词库
 
-### 🛠️ 自主部署，专属私有 (Self-Hosted & Private)
-- **属于你自己的小程序**：支持完全自主部署与定制，只需拥有一个微信小程序账号，即可几步部署出 100% 属于你自己的背单词小程序，完全自主掌控。
-- **数据隐私绝对安全**：所有词书与背诵进度完全保留在本地，无任何后端服务器上传，隐私无忧。
+所有词书均位于 `src/static/` 目录下，开箱即用：
 
-### 📦 100% 零网络依赖 (Offline-First)
-- **完全离线运行**：内置 **CET4、CET6、考研、雅思** 四本核心词书，本地数据一次性载入，彻底摆脱断网断词的尴尬。（*注：单词真人发音朗读功能需连接网络以获取有道免费语音接口支持*）
-- **本地高效解析**：释义列表、构词法剖析、中英例句对比等核心逻辑完全在本地执行，秒级响应。
-
-### 📱 拟真层叠卡片交互 (Flashcard Interaction)
-- **像刷短视频一样刷单词**：支持流畅的垂直手势拖拽（向上划过进入下一词，向下拖拽退回上一词温习）。交互顺滑跟手，体验如同刷短视频，极易进入“心流”状态，特别适合集中、大量词汇的快速突破记忆。
-- **自测与速览双模式 (Dual Study Modes)**：
-  - **自测检验模式（Quiz）**：释义默认呈真实高斯模糊，轻触卡片触发单反级相机对焦揭晓动效，形成强烈记忆冲撞。主动轻触 5 次掌握操作后，底部引导自动隐去，界面回归沉浸纯粹；
-  - **极速速览模式（Browse）**：直接呈现释义与例句，免除多余点击，专为考前冲刺、大容量快速扫词而生。
-- **纯粹纸质感与底部渐进羽化**：彻底告别生硬贴边的原生滚动条，超长内容在接近卡片底部时平滑自然消隐入微雾中，底端预留安全占位，既保证轻薄呼吸感，又确保末行文字 100% 锐利可读。
-- **3D 叠层视差**：采用层叠 DOM 物理双卡片架构，底层卡片与前景卡片无缝接管，手势阻尼感真实自然。
-
-### 🎓 科学学术深度剖析 (Word Anatomy)
-- **音节智能测算**：依据音位学规则智能剥离词尾静音，精确计算并展现单词音节数，辅助读音辅助记忆。
-- **星级难度评估**：基于词频、词长与当前词书属性，为词汇评估出 1-5 星记忆难度。
-- **词尾派生构词分析**：自动识别并剥离主流学术词尾（如 `-tion`、`-ness` 等）并分析语法词性，若无后缀则自动生成该词的元辅音占比统计。
-
-### ⚡ 0ms 极致直出与全链路零闪烁 (Zero-Flash & Instant Launch)
-- **开屏秒开，彻底告别闪白**：对齐微信客户端原生 Native 窗口底色，配合组件实例化同步记忆直出，移除一切人工延迟与骨架屏抽动，无论何种深浅主题，开屏均丝滑秒开。
-- **系统级深浅色智能联动**：全页面支持无缝跟随手机系统深浅色动态切换，同时支持在抽屉中自由强制指定，亮暗双主题均经过精心调色，对比舒适不伤眼。
-- **完美兼容无感 i18n**：界面支持一键中英双语实时切换，首创“文/A”微章样式替换传统国旗图标，规避真机不同平台系统国旗 Emoji 渲染差异。
-- **高弹性包体积控制**：采用 **运行时动态 Proxy 文件代理技术**，配合 `readFileSync` 在小程序内按需同步读取静态词书，替代 ES6 静态打包，将主包体积压缩 **50%**，安全躲过 2MB 限制线。
+| 词书名称 | 对应文件 | 词汇量 | 适用场景 |
+| :--- | :--- | :---: | :--- |
+| **四级核心词** | `CET4luan_1.json` | 1,162 词 | 大学英语四级考试必备 |
+| **六级进阶词** | `CET6luan_1.json` | 1,228 词 | 大学英语六级高频拔高 |
+| **考研英语** | `KaoYanluan_1.json` | 1,341 词 | 全国硕士研究生入学英语考试 |
+| **雅思词汇** | `IELTSluan_2.json` | 3,427 词 | 雅思学术类（A类）核心与派生词 |
 
 ---
 
-## 🛠️ 开发者运行与部署 (Development)
+## 🚀 快速开始与自主部署
 
-### 1. 准备工作
-克隆项目到本地：
+只需一个个人微信小程序账号，即可发布属于你自己的专属私有背单词应用：
+
+### 1. 克隆与安装
+
 ```bash
 git clone https://github.com/lanzm/EnglishJoy.git
 cd EnglishJoy
+npm install   # 或 pnpm install
 ```
 
-安装项目依赖（推荐使用 `pnpm` 或 `npm`）：
+### 2. 本地开发与调试
+
 ```bash
-npm install
-# 或者使用 pnpm
-pnpm install
+npm run dev:mp-weixin
 ```
+打开 **微信开发者工具** -> 点击「导入」 -> 选择项目目录下的 `dist/dev/mp-weixin` 即可实时预览与热重载。
 
-### 2. 开发者运行
-* **编译微信小程序**：
-  ```bash
-  npm run dev:mp-weixin
-  ```
-* **运行调试**：
-  打开**微信开发者工具**，点击“导入项目”，选择项目根目录下的 `dist/dev/mp-weixin` 即可实时进行预览和调试。
+### 3. 构建发布生产包
 
-### 3. 生成发布生产包
-编译生产包：
 ```bash
 npm run build:mp-weixin
 ```
-编译成功后，在微信开发者工具中导入 `dist/build/mp-weixin` 目录，检查无误后，点击“上传”按钮提交至微信小程序后台进行审核发布。
+编译产物位于 `dist/build/mp-weixin`（整包大小仅 **1.75MB**，完全符合微信 2MB 限制）。在微信开发者工具中导入后，点击右上角 **「上传」** 提交微信审核即可。
 
-### 4. ⚠️ 微信服务器域名白名单配置 (Domain Whitelist)
+### 4. 语音发音域名配置
 
-由于小程序发音功能依赖有道 TTS 语音接口，为确保**真机运行/正式版中语音发音功能正常**，您必须在微信小程序管理后台配置服务器安全域名：
-
-1. 登录 [微信公众平台 (mp.weixin.qq.com)](https://mp.weixin.qq.com/)。
-2. 进入 **「开发」 -> 「开发管理」 -> 「开发设置」 -> 「服务器域名」**。
-3. 在 **`request 合法域名`** 中，添加有道语音发音接口域名：
-   ```text
-   https://dict.youdao.com
-   ```
-
-> [!TIP]
-> 在微信开发者工具中调试时，可勾选 **「详情 -> 本地设置 -> 不校验合法域名、web-view（业务域名）、TLS版本以及HTTPS证书」** 进行本地测试，但真机发布前必须完成上述合法域名配置。
-
----
-
-## 📖 词书资源说明 (Wordbooks)
-
-静态词书资源文件存放在 `src/static/` 下：
-*   **CET-4** (`CET4luan_1.json`)：大学英语四级乱序核心词
-*   **CET-6** (`CET6luan_1.json`)：大学英语六级乱序核心词
-*   **考研英语** (`KaoYanluan_1.json`)：考研英语大纲高频核心词
-*   **雅思考试** (`IELTSluan_2.json`)：雅思考试核心词汇及派生词
-
-每个单词的存储数据结构高度精简，最大限度压缩离线体积：
-```json
-{
-  "w": "access",                                    // 单词
-  "p": "'ækses",                                    // 英音/美音音标
-  "t": [["v", "获取"], ["n", "接近，入口"]],         // 词性与释义
-  "s": [                                            // 中英双语真实学术例句
-    ["Users can access their voice mail remotely.", "用户可以远程获取语音邮件。"]
-  ]
-}
+若需使用在线真人语音发音，请在 [微信公众平台](https://mp.weixin.qq.com/) 的 **「开发管理 -> 开发设置 -> 服务器域名 -> request 合法域名」** 中添加：
+```text
+https://dict.youdao.com
 ```
 
 ---
 
-## 🤝 许可证 (License)
+## 🤝 开源协议
 
-本项目基于 [MIT License](LICENSE) 协议开源。欢迎在此基础上二次开发或进行非商业性与商业性二次分发。
+本项目基于 [MIT License](LICENSE) 协议开源。欢迎自由 Star、Fork、定制二次开发！

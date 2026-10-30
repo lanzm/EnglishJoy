@@ -10,22 +10,22 @@
 
   <!-- Back Card (Tilted -10deg) -->
   <g transform="translate(256, 256) rotate(-10) translate(-256, -256)">
-    <rect x="156" y="140" width="180" height="232" rx="28" fill="#FFFFFF" opacity="0.45"/>
+    <rect x="153" y="130" width="196" height="252" rx="30" fill="#FFFFFF" opacity="0.45"/>
   </g>
 
   <!-- Front Card (Tilted +6deg, with dynamic shadow) -->
   <g transform="translate(256, 256) rotate(6) translate(-256, -256)" filter="url(#card-shadow)">
     <!-- Card Body -->
-    <rect x="166" y="140" width="180" height="232" rx="28" fill="#FFFFFF"/>
+    <rect x="163" y="130" width="196" height="252" rx="30" fill="#FFFFFF"/>
     
-    <!-- Primary Word Bar & Dot -->
-    <rect x="198" y="202" width="82" height="18" rx="9" fill="#2B82F6"/>
-    <circle cx="300" cy="211" r="9" fill="#2B82F6"/>
+    <!-- Primary Word Bar & Dot (Height 36px, Dot 36px) -->
+    <rect x="189" y="182" width="102" height="36" rx="18" fill="#2B82F6"/>
+    <circle cx="317" cy="200" r="18" fill="#2B82F6"/>
     
-    <!-- Secondary Meaning / Phonetic Bar -->
-    <rect x="198" y="234" width="116" height="12" rx="6" fill="rgba(43, 130, 246, 0.45)"/>
+    <!-- Secondary Meaning / Phonetic Bar (Height 24px) -->
+    <rect x="189" y="236" width="146" height="24" rx="12" fill="rgba(43, 130, 246, 0.5)"/>
     
-    <!-- Subtle bottom progress pill/accent -->
-    <rect x="198" y="260" width="48" height="8" rx="4" fill="rgba(43, 130, 246, 0.45)" opacity="0.6"/>
+    <!-- Bottom Example Sentence Bar (Height 16px) -->
+    <rect x="189" y="276" width="96" height="16" rx="8" fill="rgba(43, 130, 246, 0.3)"/>
   </g>
 </svg>

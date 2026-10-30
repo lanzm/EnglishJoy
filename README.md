@@ -1,7 +1,9 @@
 <div align="center">
 
+<img src="docs/images/logo-blue-white.png" width="110" alt="EnglishJoy Logo" style="border-radius: 24px; box-shadow: 0 8px 24px rgba(43, 130, 246, 0.25);" /><br/>
+
 # 📱 EnglishJoy
-### — 极简 · 沉浸 · 纯粹的离线卡片背单词微信小程序 —
+### — 无广告 · 无登录 · 打开即用 · 纯粹卡片背单词 —
 
 [![Platform](https://img.shields.io/badge/Platform-WeChat%20MiniProgram-07C160?style=flat-square&logo=wechat&logoColor=white)](https://mp.weixin.qq.com/)
 [![Framework](https://img.shields.io/badge/Framework-Uni--App%20(Vue3)-2B9939?style=flat-square&logo=vue.js&logoColor=white)](https://uniapp.dcloud.net.cn/)
@@ -20,7 +22,7 @@
 <img src="docs/images/wechat-mp-qrcode.png" width="160" alt="WeChat MiniProgram QR Code"/><br/>
 <sub><b>微信扫码 即可体验</b></sub>
 
-[💡 提交 Bug 与建议](https://github.com/lanzm/EnglishJoy/issues) · [📖 词书资源说明](#-词书资源说明) · [🛠️ 开发者运行部署](#-开发者运行与部署)
+[💡 提交 Bug 与建议](https://github.com/lanzm/EnglishJoy/issues) · [🎨 品牌与视觉资源](docs/BRAND.md) · [📖 词书资源说明](#-词书资源说明) · [🛠️ 开发者运行部署](#-开发者运行与部署)
 
 </div>
 

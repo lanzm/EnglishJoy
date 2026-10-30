@@ -44,8 +44,8 @@ const closeDrawer = () => {
                     <view class="text-xl text-[var(--ej-text-sub)] cursor-pointer p-1" @click="closeDrawer">✕</view>
                 </view>
                 
-                <scroll-view scroll-y="true" class="flex-1 min-h-0 h-full">
-                    <view class="pr-3 box-border w-full">
+                <scroll-view scroll-y="true" class="drawer-scroll-view flex-1 min-h-0 h-full">
+                    <view class="pr-1 box-border w-full">
                         <!-- Option 1: Wordbook Select -->
                         <view class="mb-4">
                             <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.currentBookLabel }}</text>
@@ -153,6 +153,9 @@ const closeDrawer = () => {
                                 />
                             </view>
                         </view>
+
+                        <!-- Bottom breathing spacer -->
+                        <view class="h-8 w-full shrink-0"></view>
                     </view>
                 </scroll-view>
             </view>
@@ -200,6 +203,21 @@ const closeDrawer = () => {
 }
 .drawer-panel.show {
     transform: translateY(0);
+}
+
+.drawer-scroll-view {
+    -webkit-mask-image: linear-gradient(to bottom, #000000 0%, #000000 calc(100% - 36px), rgba(0, 0, 0, 0.4) calc(100% - 14px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000000 0%, #000000 calc(100% - 36px), rgba(0, 0, 0, 0.4) calc(100% - 14px), transparent 100%);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.drawer-scroll-view::-webkit-scrollbar {
+    display: none;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent;
 }
 
 .book-card {

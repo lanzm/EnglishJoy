@@ -693,6 +693,9 @@ onUnmounted(() => {
                           <text class="section-toggle-icon">+</text>
                       </view>
                   </view>
+
+                  <!-- Bottom breathing spacer -->
+                  <view class="h-8 w-full shrink-0"></view>
               </view>
 
               <!-- Bottom subtle hint mock (visible when !bgKnowFlag && showQuizPrompt) -->
@@ -877,6 +880,9 @@ onUnmounted(() => {
                               </view>
                           </view>
                       </view>
+
+                      <!-- Bottom breathing spacer so last content line is fully visible and above feathering mask -->
+                      <view class="h-8 w-full shrink-0"></view>
                   </view>
               </scroll-view>
 
@@ -1118,6 +1124,18 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     padding-right: 0;
     width: 100%;
     box-sizing: border-box;
+    -webkit-mask-image: linear-gradient(to bottom, #000000 0%, #000000 calc(100% - 36px), rgba(0, 0, 0, 0.4) calc(100% - 14px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000000 0%, #000000 calc(100% - 36px), rgba(0, 0, 0, 0.4) calc(100% - 14px), transparent 100%);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+}
+
+.card-scroll-view::-webkit-scrollbar {
+    display: none;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent;
 }
 
 /* Card details camera lens focus and blur transitions */
@@ -1140,10 +1158,11 @@ view, text, button, image, scroll-view, movable-area, movable-view {
     border-color: transparent !important;
 }
 
-/* Custom premium thin scrollbar styling */
+/* Custom premium thin scrollbar styling for drawers/other pages */
 ::-webkit-scrollbar {
-    width: 6px;
-    background-color: transparent;
+    display: none;
+    width: 0;
+    height: 0;
 }
 
 ::-webkit-scrollbar-thumb {

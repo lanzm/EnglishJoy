@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
-import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
+// import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import commonUtil from "@/utils/commonUtil";
 import { wordBooksData } from "@/utils/wordbooks";
 import { getTranslations, type Language } from "@/utils/i18n";
@@ -544,13 +544,13 @@ const resetCardScrollTop = () => {
 };
 
 // Reset card scroll position to top and update dynamic share cover when switching words
-watch(() => wordObj.value?.w, (newWord) => {
+watch(() => wordObj.value?.w, () => {
     resetCardScrollTop();
     detailSections.value = createDefaultDetailSections();
     updateDetailOverflow();
-    if (newWord) {
-        updateShareCard(newWord, wordObj.value?.p);
-    }
+    // if (newWord) {
+    //     updateShareCard(newWord, wordObj.value?.p);
+    // }
 });
 
 watch(knowFlag, (visible) => {
@@ -613,7 +613,8 @@ onUnmounted(() => {
     uni.offThemeChange(onSystemThemeChange);
 });
 
-// --- Dynamic Share Card (Canvas 2D) ---
+/*
+// --- Dynamic Share Card (Canvas 2D) --- [Temporarily disabled]
 const SHARE_TITLE = '发现一个极简背单词小程序，打开即用';
 const cachedShareImageUrl = ref<string>('/static/share-cover.jpg');
 const isGeneratingShareCard = ref(false);
@@ -898,6 +899,7 @@ onShareTimeline(() => {
         imageUrl: cachedShareImageUrl.value || '/static/share-cover.jpg',
     };
 });
+*/
 </script>
 
 <template>
@@ -1248,14 +1250,13 @@ onShareTimeline(() => {
         @change-tts="setTtsEnabled"
       />
 
-      <!-- Offscreen Canvas for dynamic share card generation -->
-      <!-- #ifdef MP-WEIXIN -->
+      <!-- Offscreen Canvas for dynamic share card generation (Temporarily disabled)
       <canvas 
         type="2d" 
         id="shareCanvas" 
         style="position: fixed; left: -9999px; top: -9999px; width: 500px; height: 400px; pointer-events: none;"
       ></canvas>
-      <!-- #endif -->
+      -->
 
   </movable-area>
 </template>

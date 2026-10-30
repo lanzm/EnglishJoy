@@ -30,6 +30,7 @@ const closeDrawer = () => {
 const qrCodeUrl = '/static/wechat-mp-qrcode.jpg';
 const ONLINE_QR_CODE_URL = 'https://raw.githubusercontent.com/lanzm/EnglishJoy/master/docs/images/wechat-mp-qrcode.jpg';
 const GITHUB_URL = 'https://github.com/lanzm/EnglishJoy';
+const GITHUB_ICON_SVG = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMiAyQzYuNDc3IDIgMiA2LjQ4NCAyIDEyLjAxN2MwIDQuNDI1IDIuODY1IDguMTggNi44MzkgOS41MDQuNS4wOTIuNjgyLS4yMTcuNjgyLS40ODMgMC0uMjM3LS4wMDgtLjg2OC0uMDEzLTEuNzAzLTIuNzgyLjYwNS0zLjM2OS0xLjM0My0zLjM2OS0xLjM0My0uNDU0LTEuMTU4LTEuMTEtMS40NjYtMS4xMS0xLjQ2Ni0uOTA4LS42Mi4wNjktLjYwOC4wNjktLjYwOCAxLjAwMy4wNyAxLjUzIDEuMDMyIDEuNTMgMS4wMzIuODkyIDEuNTMgMi4zNDEgMS4wODggMi45MS44MzIuMDkyLS42NDcuMzUtMS4wODguNjM2LTEuMzM4LTIuMjItLjI1My00LjU1NS0xLjExMy00LjU1NS00Ljk1MSAwLTEuMDkzLjM5LTEuOTg4IDEuMDI5LTIuNjg4LS4xMDMtLjI1My0uNDQ2LTEuMjcyLjA5OC0yLjY1IDAgMCAuODQtLjI3IDIuNzUgMS4wMjZBOS41NjQgOS41NjQgMCAwMTEyIDYuODQ0Yy44NS4wMDQgMS43MDUuMTE1IDIuNTA0LjMzNyAxLjkwOS0xLjI5NiAyLjc0Ny0xLjAyNyAyLjc0Ny0xLjAyNy41NDYgMS4zNzkuMjAyIDIuMzk4LjEgMi42NTEuNjQuNyAxLjAyOCAxLjU5NSAxLjAyOCAyLjY4OCAwIDMuODQ4LTIuMzM5IDQuNjk1LTQuNTY2IDQuOTQzLjM1OS4zMDkuNjc4LjkyLjY3OCAxLjg1NSAwIDEuMzM4LS4wMTIgMi40MTktLjAxMiAyLjc0NyAwIC4yNjguMTguNTguNjg4LjQ4MkExMC4wMTkgMTAuMDE5IDAgMDAyMiAxMi4wMTdDMjIgNi40ODQgMTcuNTIyIDIgMTIgMnoiLz48L3N2Zz4=';
 
 const handlePreviewQrCode = () => {
     uni.previewImage({
@@ -200,7 +201,7 @@ const handleCopyGithub = () => {
                                 <!-- 2. GitHub Open Source Card (Click to copy) -->
                                 <view class="github-repo-card" @click="handleCopyGithub">
                                     <view class="github-icon-box">
-                                        <text class="github-octo-icon">🐙</text>
+                                        <image :src="GITHUB_ICON_SVG" class="github-octo-svg" mode="aspectFit" />
                                     </view>
                                     <view class="flex flex-col gap-0.5 flex-1 min-w-0">
                                         <view class="flex items-center gap-1.5">
@@ -432,17 +433,18 @@ const handleCopyGithub = () => {
 .github-icon-box {
     width: 44px;
     height: 44px;
-    border-radius: 6px;
-    background-color: #1F2937;
+    border-radius: 8px;
+    background-color: #24292F;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.github-octo-icon {
-    font-size: 20px;
-    line-height: 1;
+.github-octo-svg {
+    width: 24px;
+    height: 24px;
+    display: block;
 }
 
 .github-star-badge {

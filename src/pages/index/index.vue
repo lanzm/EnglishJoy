@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
+import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import commonUtil from "@/utils/commonUtil";
 import { wordBooksData } from "@/utils/wordbooks";
 import { getTranslations, type Language } from "@/utils/i18n";
@@ -607,6 +608,23 @@ onMounted(() => {
 onUnmounted(() => {
     stopAudio();
     uni.offThemeChange(onSystemThemeChange);
+});
+
+// WeChat share to friends / groups
+onShareAppMessage(() => {
+    const word = wordObj.value?.w;
+    return {
+        title: word ? `EnglishJoy · 每天背点词: ${word}` : 'EnglishJoy · 极简卡片背单词',
+        path: '/pages/index/index',
+    };
+});
+
+// WeChat share to Moments (Timeline)
+onShareTimeline(() => {
+    return {
+        title: 'EnglishJoy · 极简 · 沉浸 · 纯粹的离线卡片背单词',
+        query: '',
+    };
 });
 </script>
 

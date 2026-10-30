@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <filter id="card-shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-opacity="0.22"/>
+      <feDropShadow dx="0" dy="14" stdDeviation="22" flood-opacity="0.22"/>
     </filter>
   </defs>
 
@@ -10,22 +10,22 @@
 
   <!-- Back Card (Tilted -10deg) -->
   <g transform="translate(256, 256) rotate(-10) translate(-256, -256)">
-    <rect x="153" y="130" width="196" height="252" rx="30" fill="#2B82F6" opacity="0.18"/>
+    <rect x="134" y="107" width="231" height="297" rx="35" fill="#2B82F6" opacity="0.18"/>
   </g>
 
   <!-- Front Card (Tilted +6deg, with dynamic shadow) -->
   <g transform="translate(256, 256) rotate(6) translate(-256, -256)" filter="url(#card-shadow)">
     <!-- Card Body -->
-    <rect x="163" y="130" width="196" height="252" rx="30" fill="#2B82F6"/>
+    <rect x="146" y="107" width="231" height="297" rx="35" fill="#2B82F6"/>
     
     <!-- Primary Word Bar & Dot (White on Blue) -->
-    <rect x="189" y="182" width="102" height="36" rx="18" fill="#FFFFFF"/>
-    <circle cx="317" cy="200" r="18" fill="#FFFFFF"/>
+    <rect x="177" y="168" width="120" height="42" rx="21" fill="#FFFFFF"/>
+    <circle cx="328" cy="189" r="21" fill="#FFFFFF"/>
     
     <!-- Secondary Meaning Bar -->
-    <rect x="189" y="236" width="146" height="24" rx="12" fill="rgba(255, 255, 255, 0.6)"/>
+    <rect x="177" y="232" width="172" height="28" rx="14" fill="rgba(255, 255, 255, 0.6)"/>
     
     <!-- Bottom Example Bar -->
-    <rect x="189" y="276" width="96" height="16" rx="8" fill="rgba(255, 255, 255, 0.35)"/>
+    <rect x="177" y="279" width="113" height="19" rx="9.5" fill="rgba(255, 255, 255, 0.35)"/>
   </g>
 </svg>

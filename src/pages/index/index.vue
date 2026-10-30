@@ -15,7 +15,6 @@ const scrollTop = ref(0);
 const detailScrollTop = ref(0);
 const hasDetailOverflow = ref(false);
 const wordBook = ref<WordBookMeta | null>(null);
-const wordNum = ref(0);
 const studyMode = ref<'quiz' | 'browse'>('quiz');
 const knowFlag = ref(false); // Controls whether the translations are revealed
 const preventClick = ref(false);
@@ -312,7 +311,6 @@ const nextWordDirectional = (dir: 'up' | 'down') => {
             }
             historyIndex.value = historyWords.value.length - 1;
         }
-        wordNum.value += 1;
     }
 
     if (dir === 'up') {
@@ -360,11 +358,6 @@ const changeWordBook = (item: WordBookMeta) => {
     wordBook.value = item;
     loadWordBook();
     showDrawer.value = false;
-};
-
-const resetProgress = () => {
-    wordNum.value = 0;
-    commonUtil.msg(i18n.value.resetAlert);
 };
 
 const updateDetailOverflow = () => {
@@ -981,7 +974,6 @@ onUnmounted(() => {
         :study-mode="studyMode"
         :tts-disabled="ttsDisabled"
         :current-book-value="wordBook?.value || ''"
-        :word-num="wordNum"
         :i18n="i18n"
         :word-book-list="commonUtil.wordBookList"
         @change-book="changeWordBook"
@@ -989,7 +981,6 @@ onUnmounted(() => {
         @change-theme="setTheme"
         @change-lang="setLang"
         @change-tts="setTtsEnabled"
-        @reset-progress="resetProgress"
       />
 
   </movable-area>

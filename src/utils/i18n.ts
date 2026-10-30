@@ -38,9 +38,6 @@ export interface Translations {
     wordListLabel: string;
     savedWordsTitle: string;
     totalWordsCount: (count: number) => string;
-    progressLabel: string;
-    progressCount: (count: number) => string;
-    resetBtnText: string;
     
     backToSettings: string;
     emptyListPrompt: string;
@@ -49,7 +46,6 @@ export interface Translations {
     addedAlert: string;
     alreadyAddedAlert: string;
     removedAlert: string;
-    resetAlert: string;
     loadFailAlert: string;
     
     langLabel: string;
@@ -105,9 +101,6 @@ export const getTranslations = (lang: Language): Translations => {
         wordListLabel: isZh ? '我的生词本' : 'My Word List',
         savedWordsTitle: isZh ? '已收录生词' : 'Saved Vocabulary',
         totalWordsCount: (count: number) => isZh ? `共 ${count} 个单词` : `${count} words collected`,
-        progressLabel: isZh ? '今日进度' : 'Session Progress',
-        progressCount: (count: number) => isZh ? `本次已背单词数：${count} 个` : `Words reviewed: ${count}`,
-        resetBtnText: isZh ? '重置进度' : 'Reset Progress',
         
         // Drawer word list management
         backToSettings: isZh ? '返回设置' : 'Back to Settings',
@@ -118,7 +111,6 @@ export const getTranslations = (lang: Language): Translations => {
         addedAlert: isZh ? '已添加到生词本' : 'Added to word list',
         alreadyAddedAlert: isZh ? '已在生词本中' : 'Already in word list',
         removedAlert: isZh ? '已从生词本移除' : 'Removed from word list',
-        resetAlert: isZh ? '进度已重置' : 'Progress reset successfully',
         loadFailAlert: isZh ? '加载词书失败' : 'Failed to load wordbook',
         
         // Language Selector

@@ -9,7 +9,6 @@ defineProps<{
     studyMode: 'quiz' | 'browse';
     ttsDisabled: boolean;
     currentBookValue: string;
-    wordNum: number;
     i18n: Translations;
     wordBookList: WordBookMeta[];
 }>();
@@ -21,7 +20,6 @@ const emit = defineEmits<{
     (e: 'change-theme', theme: 'dark' | 'light'): void;
     (e: 'change-lang', lang: Language): void;
     (e: 'change-tts', enabled: boolean): void;
-    (e: 'reset-progress'): void;
 }>();
 
 const closeDrawer = () => {
@@ -155,15 +153,6 @@ const closeDrawer = () => {
                                 />
                             </view>
                         </view>
-
-                        <!-- Option 3: Session progress info -->
-                        <view class="mb-4">
-                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.progressLabel }}</text>
-                            <view class="settings-row-card">
-                                <text class="text-sm font-medium text-[var(--ej-text-primary)]">{{ i18n.progressCount(wordNum) }}</text>
-                                <view class="reset-progress-btn" @click="emit('reset-progress')">{{ i18n.resetBtnText }}</view>
-                            </view>
-                        </view>
                     </view>
                 </scroll-view>
             </view>
@@ -280,23 +269,6 @@ const closeDrawer = () => {
 .theme-switch-option.active .lang-badge {
     background-color: var(--ej-color-brand);
     color: #FFFFFF;
-}
-
-.reset-progress-btn {
-    font-size: 12px;
-    font-weight: 600;
-    color: #EF4444;
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid #FCA5A5;
-    background-color: #FEF2F2;
-}
-.dark .reset-progress-btn {
-    background-color: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.4);
-}
-.reset-progress-btn:active {
-    opacity: 0.8;
 }
 
 .settings-row-card {

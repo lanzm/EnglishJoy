@@ -18,6 +18,8 @@ const wordBook = ref<WordBookMeta | null>(null);
 const studyMode = ref<'quiz' | 'browse'>('quiz');
 const knowFlag = ref(false); // Controls whether the translations are revealed
 const isRevealing = ref(false); // Controls camera focus animation exclusively on intentional tap
+const cardTapCount = ref(0);
+const showQuizPrompt = computed(() => cardTapCount.value < 5);
 const preventClick = ref(false);
 const { playFlag, playWord, stopAudio } = useWordAudio();
 const ttsDisabled = ref(false);
@@ -186,6 +188,10 @@ const handleCardTap = () => {
     if (preventClick.value) return;
     isRevealing.value = true;
     knowFlag.value = true;
+    if (cardTapCount.value < 5) {
+        cardTapCount.value += 1;
+        uni.setStorageSync('cardTapCount', cardTapCount.value);
+    }
     setTimeout(() => {
         isRevealing.value = false;
     }, 320);
@@ -569,6 +575,8 @@ const initData = () => {
         studyMode.value = savedStudyMode;
     }
     knowFlag.value = studyMode.value === 'browse';
+    const savedTapCount = Number(uni.getStorageSync('cardTapCount'));
+    cardTapCount.value = Number.isFinite(savedTapCount) && savedTapCount >= 0 ? savedTapCount : 0;
     const savedTtsDisabled = uni.getStorageSync('ttsDisabled');
     ttsDisabled.value = savedTtsDisabled === true || savedTtsDisabled === 'true';
     updateNavBarColor();
@@ -672,8 +680,8 @@ onUnmounted(() => {
                   </view>
               </view>
 
-              <!-- Bottom subtle hint mock (visible when !bgKnowFlag) -->
-              <view v-if="!bgKnowFlag" class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
+              <!-- Bottom subtle hint mock (visible when !bgKnowFlag && showQuizPrompt) -->
+              <view v-if="!bgKnowFlag && showQuizPrompt" class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none">
                   <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">
                       💡 {{ i18n.quizPrompt }}
                   </text>
@@ -855,9 +863,9 @@ onUnmounted(() => {
                   </view>
               </scroll-view>
 
-              <!-- Bottom subtle hint (Clean, natural, visible only in quiz mode when !knowFlag) -->
+              <!-- Bottom subtle hint (Clean, natural, visible only in quiz mode when !knowFlag && showQuizPrompt) -->
               <view 
-                v-if="!knowFlag" 
+                v-if="!knowFlag && showQuizPrompt" 
                 class="flex items-center justify-center gap-1.5 py-1.5 shrink-0 pointer-events-none"
               >
                   <text class="text-[11px] text-[var(--ej-text-secondary)] opacity-75 tracking-wide font-normal">

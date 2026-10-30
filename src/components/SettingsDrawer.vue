@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { WordBookMeta } from '@/types/word';
 import type { Language, Translations } from '@/utils/i18n';
+import commonUtil from '@/utils/commonUtil';
 
-defineProps<{
+const props = defineProps<{
     show: boolean;
     isDark: 'dark' | 'light';
     lang: Language;
@@ -24,6 +25,26 @@ const emit = defineEmits<{
 
 const closeDrawer = () => {
     emit('update:show', false);
+};
+
+const qrCodeUrl = '/static/wechat-mp-qrcode.jpg';
+const ONLINE_QR_CODE_URL = 'https://raw.githubusercontent.com/lanzm/EnglishJoy/master/docs/images/wechat-mp-qrcode.jpg';
+const GITHUB_URL = 'https://github.com/lanzm/EnglishJoy';
+
+const handlePreviewQrCode = () => {
+    uni.previewImage({
+        current: ONLINE_QR_CODE_URL,
+        urls: [ONLINE_QR_CODE_URL]
+    });
+};
+
+const handleCopyGithub = () => {
+    uni.setClipboardData({
+        data: GITHUB_URL,
+        success: () => {
+            commonUtil.msg(props.i18n.githubCopiedMsg || '已复制链接', 'success');
+        }
+    });
 };
 </script>
 
@@ -151,6 +172,47 @@ const closeDrawer = () => {
                                     class="settings-switch"
                                     @change="emit('change-tts', ($event as any).detail.value)"
                                 />
+                            </view>
+                        </view>
+
+                        <!-- Option 2.7: Open Source & Share -->
+                        <view class="mb-4">
+                            <text class="section-label-style text-[var(--ej-text-muted)]">{{ i18n.shareLabel }}</text>
+                            
+                            <view class="flex flex-col gap-2.5">
+                                <!-- 1. Mini Program QR Code -->
+                                <view class="share-recommend-card" @click="handlePreviewQrCode">
+                                    <image 
+                                        :src="qrCodeUrl" 
+                                        class="share-qr-thumb" 
+                                        mode="aspectFit"
+                                    />
+                                    <view class="flex flex-col gap-0.5 flex-1 min-w-0">
+                                        <view class="flex items-center gap-1.5">
+                                            <text class="text-sm font-semibold text-[var(--ej-text-primary)]">{{ i18n.shareCardTitle }}</text>
+                                            <text class="share-badge">二维码</text>
+                                        </view>
+                                        <text class="text-[11px] text-[var(--ej-text-muted)] leading-tight">{{ i18n.shareCardDesc }}</text>
+                                    </view>
+                                    <text class="share-arrow text-[var(--ej-text-sub)]">›</text>
+                                </view>
+
+                                <!-- 2. GitHub Open Source Card (Click to copy) -->
+                                <view class="github-repo-card" @click="handleCopyGithub">
+                                    <view class="github-icon-box">
+                                        <text class="github-octo-icon">🐙</text>
+                                    </view>
+                                    <view class="flex flex-col gap-0.5 flex-1 min-w-0">
+                                        <view class="flex items-center gap-1.5">
+                                            <text class="text-sm font-semibold text-[var(--ej-text-primary)]">{{ i18n.githubCardTitle }}</text>
+                                            <text class="github-star-badge">MIT 开源</text>
+                                        </view>
+                                        <text class="text-[11px] text-[var(--ej-text-muted)] truncate leading-tight">github.com/lanzm/EnglishJoy</text>
+                                    </view>
+                                    <view class="copy-action-pill">
+                                        <text class="text-[11px] font-semibold text-[var(--ej-color-brand)]">{{ i18n.copyLinkText }}</text>
+                                    </view>
+                                </view>
                             </view>
                         </view>
 
@@ -305,5 +367,97 @@ const closeDrawer = () => {
     transform: scale(0.8);
     transform-origin: right center;
     margin-right: -4px;
+}
+
+.share-recommend-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--ej-border);
+    background-color: var(--ej-bg-sub);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.share-recommend-card:active {
+    background-color: var(--ej-color-brand-subtle);
+    border-color: var(--ej-color-brand);
+}
+
+.share-qr-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    border: 1px solid var(--ej-border);
+    flex-shrink: 0;
+}
+
+.share-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background-color: var(--ej-color-brand-light);
+    color: var(--ej-color-brand);
+}
+
+.share-arrow {
+    font-size: 20px;
+    line-height: 1;
+    font-weight: 400;
+}
+
+.github-repo-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--ej-border);
+    background-color: var(--ej-bg-sub);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.github-repo-card:active {
+    background-color: var(--ej-color-brand-subtle);
+    border-color: var(--ej-color-brand);
+}
+
+.github-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    background-color: #1F2937;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.github-octo-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.github-star-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+}
+
+.copy-action-pill {
+    padding: 4px 10px;
+    border-radius: 6px;
+    background-color: var(--ej-color-brand-light);
+    flex-shrink: 0;
 }
 </style>

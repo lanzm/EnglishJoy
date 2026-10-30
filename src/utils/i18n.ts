@@ -35,6 +35,12 @@ export interface Translations {
     ttsDisabledHint: string;
     lightModeText: string;
     darkModeText: string;
+    shareLabel: string;
+    shareCardTitle: string;
+    shareCardDesc: string;
+    githubCardTitle: string;
+    copyLinkText: string;
+    githubCopiedMsg: string;
     wordListLabel: string;
     savedWordsTitle: string;
     totalWordsCount: (count: number) => string;
@@ -98,6 +104,12 @@ export const getTranslations = (lang: Language): Translations => {
         ttsDisabledHint: isZh ? '已关闭，不请求在线发音' : 'Off. No online pronunciation request',
         lightModeText: isZh ? '☀️ 明亮模式' : '☀️ Light Mode',
         darkModeText: isZh ? '🌙 暗黑模式' : '🌙 Dark Mode',
+        shareLabel: isZh ? '开源与分享' : 'Open Source & Share',
+        shareCardTitle: isZh ? '微信分享二维码' : 'WeChat Share QR Code',
+        shareCardDesc: isZh ? '点击查看高清大图，长按可识别或转发' : 'Tap to preview QR code, long press to scan or share',
+        githubCardTitle: isZh ? 'GitHub 开源项目' : 'GitHub Open Source',
+        copyLinkText: isZh ? '复制链接' : 'Copy',
+        githubCopiedMsg: isZh ? '已复制链接' : 'Link copied',
         wordListLabel: isZh ? '我的生词本' : 'My Word List',
         savedWordsTitle: isZh ? '已收录生词' : 'Saved Vocabulary',
         totalWordsCount: (count: number) => isZh ? `共 ${count} 个单词` : `${count} words collected`,

@@ -19,7 +19,7 @@
 
 摒弃任何社交、积分、任务、PK 等繁杂花哨的干扰，回归记忆卡片（Flashcards）最纯粹的本源。通过**像刷短视频一样流畅的上下滑手势刷单词**，提供绝对专注、秒级启动、**完全离线**的英语记忆空间，**特别适合需要集中、高频、大量记忆词汇的快速突破场景**。
 
-<img src="docs/images/wechat-mp-qrcode.png" width="160" alt="WeChat MiniProgram QR Code"/><br/>
+<img src="docs/images/wechat-mp-qrcode.jpg" width="160" alt="WeChat MiniProgram QR Code"/><br/>
 <sub><b>微信扫码 即可体验</b></sub>
 
 [💡 提交 Bug 与建议](https://github.com/lanzm/EnglishJoy/issues) · [🎨 品牌与视觉资源](docs/BRAND.md) · [📖 词书资源说明](#-词书资源说明) · [🛠️ 开发者运行部署](#-开发者运行与部署)
